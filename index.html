@@ -4,126 +4,161 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>FitMyBit</title>
-<meta name="theme-color" content="#0e1116">
+<meta name="theme-color" content="#EEF1F3">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="FitMyBit">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#0e1116; --card:#161b22; --card2:#1c232c; --line:#262e38;
-    --text:#eef1f5; --muted:#8b96a5; --accent:#ff6a3d; --accent2:#4fd1b5; --warn:#f5b84b; --bad:#ff8a7a;
-    --r:18px; --safe-t:env(safe-area-inset-top); --safe-b:env(safe-area-inset-bottom);
+    --paper:#EEF1F3; --surface:#FFFFFF; --ink:#17202B; --ink2:#3B4653; --muted:#667180; --line:#DDE2E7;
+    --data:#2D5B86; --data-soft:#C9D6E3; --watch:#B7791F; --watch-bg:#FBF3E4; --alert:#B4432F; --alert-bg:#FBECE8;
+    --safe-t:env(safe-area-inset-top); --safe-b:env(safe-area-inset-bottom);
+    --font:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-  html,body{margin:0;background:var(--bg);color:var(--text);
-    font:16px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
-  body{padding:calc(var(--safe-t) + 34px) 16px calc(var(--safe-b) + 28px);max-width:560px;margin:0 auto}
-  .topshade{position:fixed;top:0;left:0;right:0;height:calc(var(--safe-t) + 26px);background:linear-gradient(var(--bg) 65%,rgba(14,17,22,0));z-index:25;pointer-events:none}
+  html,body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--font);font-feature-settings:"tnum" 1}
+  body{padding:calc(var(--safe-t) + 18px) 18px calc(var(--safe-b) + 32px);max-width:560px;margin:0 auto}
   body.locked{overflow:hidden}
-  h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.01em}
-  .muted{color:var(--muted)} .small{font-size:13px}
-  button{font:inherit;color:inherit;border:0;cursor:pointer}
+  h1,h2,h3,p{margin:0}
+  button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
+  :focus-visible{outline:2px solid var(--data);outline-offset:2px;border-radius:6px}
   .hidden{display:none!important}
+  .muted{color:var(--muted)}
+  .topshade{position:fixed;top:0;left:0;right:0;height:calc(var(--safe-t) + 10px);background:var(--paper);z-index:25;pointer-events:none}
 
-  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-  .brand{display:flex;align-items:center;gap:10px}
-  .brand img{width:34px;height:34px;border-radius:10px}
-  .brand h1{font-size:22px} .brand h1 b{color:var(--accent)}
-  .iconbtn{width:38px;height:38px;border-radius:12px;background:var(--card);display:grid;place-items:center}
-  .iconbtn svg{width:20px;height:20px;stroke:var(--muted)}
+  /* header */
+  .head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:22px}
+  .hello{font-size:26px;font-weight:600;letter-spacing:-.02em;line-height:1.15}
+  .sub{font-size:14px;color:var(--muted);margin-top:4px}
+  .menu{width:40px;height:40px;border-radius:20px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center;flex:none}
+  .menu svg{width:18px;height:18px}
 
-  .login{min-height:80vh;display:flex;flex-direction:column;justify-content:center;gap:22px;text-align:center}
-  .login img{width:96px;height:96px;border-radius:26px;margin:0 auto}
-  .login h1{font-size:34px} .login h1 b{color:var(--accent)}
-  .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;
-    padding:14px 18px;border-radius:14px;font-weight:600;width:100%}
-  .gbtn svg{width:20px;height:20px}
-  .note{background:var(--card);border-radius:var(--r);padding:14px 16px;text-align:left;font-size:14px;color:var(--muted)}
-  .note a{color:var(--muted)}
+  /* watch panel */
+  .watch{background:var(--surface);border:1px solid var(--line);border-radius:16px;margin-bottom:26px;overflow:hidden}
+  .watch h2{font-size:15px;font-weight:600;padding:14px 16px 4px}
+  .witem{display:grid;grid-template-columns:4px 1fr auto;gap:0 12px;align-items:start;width:100%;text-align:left;padding:12px 16px 12px 0;border-top:1px solid var(--line)}
+  .watch h2 + .witem{border-top:0}
+  .witem .bar{grid-row:span 2;align-self:stretch;border-radius:0 3px 3px 0}
+  .witem.watch-l .bar{background:var(--watch)} .witem.alert-l .bar{background:var(--alert)}
+  .witem .n{font-weight:600;font-size:15px}
+  .witem .lv{font-size:12px;font-weight:600;margin-left:6px}
+  .witem.watch-l .lv{color:var(--watch)} .witem.alert-l .lv{color:var(--alert)}
+  .witem .v{font-weight:600;font-size:15px;text-align:right;white-space:nowrap}
+  .witem .r{grid-column:2 / 4;font-size:14px;color:var(--ink2);line-height:1.45;margin-top:2px}
+  .calm{display:flex;gap:10px;align-items:center;padding:14px 16px;font-size:15px;color:var(--ink2)}
+  .calm i{width:8px;height:8px;border-radius:4px;background:var(--data);flex:none}
 
-  .card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:14px}
-  .card h2{font-size:17px}
-  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
-  .eyebrow.teal{color:var(--accent2)}
-  .insight{font-size:15.5px;line-height:1.6}
-  .insight p{margin:10px 0 0} .insight ul{margin:8px 0 0;padding-left:20px} .insight li{margin:4px 0}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-  .chip{background:var(--card2);border:1px solid var(--line);padding:5px 10px;border-radius:999px;font-size:13px}
-  .chip.up{border-color:#2f6b5d;color:#8ff0d8} .chip.down{border-color:#7a3a2a;color:#ffb39c}
-  .empty{color:var(--muted);font-size:15px}
+  /* summary */
+  .summary{margin-bottom:30px}
+  .summary .when{font-size:13px;color:var(--muted)}
+  .summary h2{font-size:21px;font-weight:600;letter-spacing:-.015em;margin:4px 0 6px;line-height:1.25}
+  .prose{font-size:16px;line-height:1.62;color:var(--ink2)}
+  .prose p{margin-top:10px} .prose p:first-child{margin-top:0}
+  .prose ul{margin:8px 0 0;padding-left:18px} .prose li{margin:5px 0}
+  .prose b{color:var(--ink);font-weight:600}
 
-  .grouph{display:flex;justify-content:space-between;align-items:baseline;margin:20px 4px 10px}
-  .grouph h3{font-size:15px;color:var(--muted)}
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .tile{background:var(--card);border-radius:16px;padding:14px;text-align:left;width:100%;position:relative}
-  .tile:active{background:var(--card2)}
-  .tile .lbl{font-size:13px;color:var(--muted);padding-right:16px;line-height:1.3}
-  .tile .val{font-size:24px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
-  .tile .val small{font-size:13px;color:var(--muted);font-weight:500;margin-left:3px}
-  .tile .delta{font-size:12px;margin-top:2px;color:var(--muted)}
-  .tile .delta .g{color:var(--accent2)} .tile .delta .b{color:var(--bad)}
-  .tile svg{display:block;width:100%;height:34px;margin-top:8px}
-  .tile .chev{position:absolute;top:13px;right:12px;color:var(--muted);font-size:15px}
-  .tile .dot2{position:absolute;top:16px;right:28px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
+  /* metric rows */
+  .group{margin-bottom:24px}
+  .group h3{font-size:15px;font-weight:600;color:var(--muted);margin:0 2px 8px}
+  .list{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .row{display:grid;grid-template-columns:1fr auto 72px;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px 13px 16px;border-top:1px solid var(--line);position:relative}
+  .row:first-child{border-top:0}
+  .row:active{background:#F6F8F9}
+  .row .l{font-size:15px;font-weight:500;line-height:1.3}
+  .row .d{font-size:12.5px;color:var(--muted);margin-top:2px}
+  .row .val{font-size:20px;font-weight:600;letter-spacing:-.01em;text-align:right;white-space:nowrap}
+  .row .val small{font-size:12.5px;font-weight:500;color:var(--muted);margin-left:2px}
+  .row svg.sp{width:72px;height:28px;display:block}
+  .row.flag-watch::before,.row.flag-alert::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 3px 3px 0}
+  .row.flag-watch::before{background:var(--watch)} .row.flag-alert::before{background:var(--alert)}
+  .row .tag{font-size:11.5px;font-weight:600;margin-left:6px}
+  .row.flag-watch .tag{color:var(--watch)} .row.flag-alert .tag{color:var(--alert)}
 
-  .seg{display:flex;background:var(--card);border-radius:12px;padding:4px;margin:4px 0 14px}
-  .seg button{flex:1;padding:8px;border-radius:9px;background:none;color:var(--muted);font-weight:600;font-size:14px}
-  .seg button.on{background:var(--card2);color:var(--text)}
-  details.past{background:var(--card);border-radius:14px;padding:12px 16px;margin-bottom:8px}
-  details.past summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-weight:600;font-size:15px}
+  .textlink{color:var(--data);font-weight:600;font-size:15px}
+  .weekly{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;margin:6px 0 26px}
+  .weekly .when{font-size:13px;color:var(--muted)}
+  .weekly h2{font-size:18px;font-weight:600;margin:3px 0 6px}
+
+  .notice{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin-bottom:22px;font-size:15px;color:var(--ink2)}
+  .notice.warn{background:var(--watch-bg);border-color:#EAD7B3}
+  .notice button.textlink{margin-top:8px;display:inline-block}
+
+  .tabs{display:inline-flex;gap:18px;margin:0 2px 10px}
+  .tabs button{font-size:15px;font-weight:600;color:var(--muted);padding-bottom:4px;border-bottom:2px solid transparent}
+  .tabs button.on{color:var(--ink);border-color:var(--ink)}
+  details.past{border-top:1px solid var(--line);padding:12px 2px}
+  details.past summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:12px;font-weight:500;font-size:15px}
   details.past summary::-webkit-details-marker{display:none}
-  details.past .insight{margin-top:6px}
+  details.past .prose{margin-top:8px;font-size:15px}
 
-  .status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:-6px 0 14px}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2)} .dot.warn{background:var(--warn)}
-  .banner{background:#2a2110;border:1px solid #5a4415;color:#ffd78a;border-radius:14px;padding:12px 14px;font-size:14px;margin-bottom:14px}
-  .banner button{background:var(--warn);color:#1a1205;border-radius:10px;padding:6px 12px;font-weight:600;margin-top:8px}
-  .linkbtn{background:none;color:var(--accent2);font-weight:600;font-size:14px;padding:0}
+  /* login */
+  .login{min-height:82vh;display:flex;flex-direction:column;justify-content:center;gap:26px}
+  .login img{width:72px;height:72px;border-radius:20px}
+  .login h1{font-size:34px;font-weight:600;letter-spacing:-.025em;line-height:1.1}
+  .login .lede{font-size:17px;color:var(--ink2);margin-top:8px;max-width:30ch}
+  .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--ink);color:#fff;padding:15px 18px;border-radius:14px;font-weight:600;width:100%}
+  .gbtn svg{width:20px;height:20px;background:#fff;border-radius:4px;padding:2px}
+  .fine{font-size:14px;color:var(--muted);line-height:1.55}
+  .fine p + p{margin-top:8px}
+  .fine a{color:var(--muted)}
 
-  /* bottom sheet (menu) */
-  .sheet-bg{position:fixed;inset:0;background:#0009;display:flex;align-items:flex-end;justify-content:center;z-index:10}
-  .sheet{background:var(--card);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:18px 16px calc(var(--safe-b) + 18px)}
-  .sheet .row{display:block;width:100%;text-align:left;padding:14px;border-radius:12px;background:var(--card2);margin-top:8px;font-weight:600}
-  .sheet .row.danger{color:var(--bad)}
+  /* sheet */
+  .sheet-bg{position:fixed;inset:0;background:rgba(23,32,43,.35);display:flex;align-items:flex-end;justify-content:center;z-index:30}
+  .sheet{background:var(--surface);width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:8px 0 calc(var(--safe-b) + 12px)}
+  .sheet .who{font-size:13px;color:var(--muted);padding:12px 20px 6px}
+  .sheet .item{display:block;width:100%;text-align:left;padding:15px 20px;font-size:16px;border-top:1px solid var(--line)}
+  .sheet .item.danger{color:var(--alert)}
 
-  /* full-screen page (metric detail, glossary) */
-  .page{position:fixed;inset:0;background:var(--bg);z-index:15;overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .page-in{max-width:560px;margin:0 auto;padding:calc(var(--safe-t) + 34px) 16px calc(var(--safe-b) + 40px)}
-  .back{display:flex;align-items:center;gap:6px;background:none;color:var(--muted);font-weight:600;padding:6px 0;margin-bottom:10px}
+  /* page */
+  .page{position:fixed;inset:0;background:var(--paper);z-index:20;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .page-in{max-width:560px;margin:0 auto;padding:calc(var(--safe-t) + 18px) 18px calc(var(--safe-b) + 40px)}
+  .back{display:inline-flex;align-items:center;gap:4px;color:var(--data);font-weight:600;font-size:16px;padding:6px 0;margin-bottom:14px}
   .back svg{width:18px;height:18px;stroke:currentColor}
-  .big{font-size:44px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
-  .big small{font-size:18px;color:var(--muted);font-weight:600;margin-left:4px}
-  .chartwrap{position:relative;margin-top:30px;touch-action:none;user-select:none;-webkit-user-select:none}
+  .ptitle{font-size:26px;font-weight:600;letter-spacing:-.02em}
+  .pgroup{font-size:14px;color:var(--muted);margin-top:2px}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:16px}
+  .panel h3{font-size:15px;font-weight:600;margin-bottom:8px}
+  .big{font-size:46px;font-weight:600;letter-spacing:-.03em;line-height:1}
+  .big small{font-size:17px;color:var(--muted);font-weight:500;margin-left:4px;letter-spacing:0}
+  .cmp{font-size:15px;color:var(--ink2);margin-top:8px}
+  .flagnote{margin-top:12px;padding:10px 12px;border-radius:10px;font-size:14px;line-height:1.45}
+  .flagnote.watch-l{background:var(--watch-bg);color:#6B4A12} .flagnote.alert-l{background:var(--alert-bg);color:#7A2B1D}
+  .chartwrap{position:relative;margin-top:34px;touch-action:none;user-select:none;-webkit-user-select:none}
   .chart{width:100%;height:150px;display:block}
-  .tip{position:absolute;top:-28px;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:13px;font-weight:700;
-    padding:3px 9px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s}
+  .tip{position:absolute;top:-30px;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:13px;font-weight:600;padding:4px 9px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .12s}
   .tip.on{opacity:1}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
-  .stat{background:var(--card2);border-radius:12px;padding:10px 8px;text-align:center}
-  .stat .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-  .stat .v{font-weight:700;font-size:16px;margin-top:2px;font-variant-numeric:tabular-nums}
-  .explain h4{margin:16px 0 4px;font-size:14px;color:var(--accent2);font-weight:700}
-  .explain h4:first-child{margin-top:4px}
-  .explain p{margin:0;font-size:15px;line-height:1.6;color:#d6dbe2}
-  .gl-item{background:var(--card);border-radius:14px;margin-bottom:8px}
-  .gl-item summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:600;display:flex;justify-content:space-between}
-  .gl-item summary::-webkit-details-marker{display:none}
-  .gl-item .explain{padding:0 16px 16px}
+  .hint{font-size:13px;color:var(--muted);margin-top:6px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);margin-top:16px;border-top:1px solid var(--line)}
+  .stat{padding:12px 0 0;text-align:left}
+  .stat + .stat{padding-left:12px;border-left:1px solid var(--line)}
+  .stat .k{font-size:12.5px;color:var(--muted)}
+  .stat .v{font-weight:600;font-size:17px;margin-top:2px}
+  .explain h4{margin:16px 0 4px;font-size:15px;font-weight:600}
+  .explain h4:first-child{margin-top:0}
+  .explain p{font-size:15px;line-height:1.6;color:var(--ink2)}
+  .gl{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:8px}
+  .gl summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:500;display:flex;justify-content:space-between}
+  .gl summary::-webkit-details-marker{display:none}
+  .gl .explain{padding:0 16px 16px}
+  .pfrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-top:1px solid var(--line)}
+  .pfrow:first-child{border-top:0;padding-top:0}
+  .pfrow .k{font-weight:600} .pfrow .s{font-size:13px;color:var(--muted)}
+  .segsm{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .segsm button{padding:8px 14px;font-weight:600;font-size:14px;color:var(--muted)}
+  .segsm button.on{background:var(--ink);color:#fff}
+  .numin{width:90px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font:inherit;text-align:right;color:var(--ink);background:var(--surface)}
+  .btn{display:block;width:100%;background:var(--ink);color:#fff;font-weight:600;padding:14px;border-radius:12px;margin-top:16px}
+  .disclaimer{font-size:13px;color:var(--muted);margin-top:16px;line-height:1.5}
 
-  .pfrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
-  .pfrow:last-child{border-bottom:0}
-  .pfrow .k{font-weight:600} .pfrow .s{font-size:12px;color:var(--muted)}
-  .segsm{display:flex;background:var(--card2);border-radius:10px;padding:3px}
-  .segsm button{padding:7px 14px;border-radius:8px;background:none;color:var(--muted);font-weight:600;font-size:14px}
-  .segsm button.on{background:var(--accent);color:#1a0d07}
-  .numin{width:88px;background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 10px;font:inherit;text-align:right}
-  .btn{display:block;width:100%;background:var(--accent);color:#1a0d07;font-weight:700;padding:13px;border-radius:12px;margin-top:14px}
-  .toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + 20px);transform:translateX(-50%);background:var(--card2);
-    border:1px solid var(--line);padding:10px 16px;border-radius:12px;font-size:14px;z-index:30}
+  .toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + 22px);transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:40;max-width:90vw}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
@@ -133,57 +168,50 @@
 <section id="login" class="login hidden">
   <img src="icon-512.png" alt="">
   <div>
-    <h1>FitMy<b>Bit</b></h1>
-    <p class="muted">Google Health verilerin her sabah yorumlanır.<br>Ekran görüntüsü yok, uğraş yok.</p>
+    <h1>FitMyBit</h1>
+    <p class="lede">Google Health verilerin her sabah yorumlanır. Dünün özetini ve takip etmen gerekenleri tek yerde görürsün.</p>
   </div>
   <button class="gbtn" id="loginBtn">
     <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
     Google ile bağlan
   </button>
-  <div class="note">
-    <b style="color:var(--text)">Bilmen gerekenler</b><br>
-    • Google "Bu uygulama doğrulanmadı" uyarısı gösterecek: <i>Gelişmiş → FitMyBit'e git</i> diyerek devam et.<br>
-    • İzin ekranında tüm kutuları işaretle; işaretlemediğin veriler yorumlara giremez.<br>
-    • Sağlık verilerin yalnızca okunur. Yorumlar Claude tarafından üretilir, tıbbi tavsiye değildir.<br>
-    • Ayarlar'dan istediğin an hesabını ve tüm verilerini silebilirsin. <a href="privacy.html">Gizlilik</a>
+  <div class="fine">
+    <p>Google "Bu uygulama doğrulanmadı" diyecek. Gelişmiş'e, sonra FitMyBit'e git'e dokunarak devam et ve izin ekranındaki tüm kutuları işaretle.</p>
+    <p>Veriler yalnızca okunur. Yorumları Claude yazar ve tıbbi tavsiye yerine geçmez. Hesabını ve verilerini istediğin an silebilirsin. <a href="privacy.html">Gizlilik</a></p>
   </div>
-  <p id="loginErr" class="small" style="color:var(--bad)"></p>
+  <p id="loginErr" class="fine" style="color:var(--alert)"></p>
 </section>
 
 <!-- APP -->
 <section id="app" class="hidden">
-  <div class="top">
-    <div class="brand"><img src="icon-192.png" alt=""><h1>FitMy<b>Bit</b></h1></div>
-    <button class="iconbtn" id="menuBtn" aria-label="Ayarlar">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+  <header class="head">
+    <div><h1 class="hello" id="hello">Günaydın</h1><p class="sub" id="status"></p></div>
+    <button class="menu" id="menuBtn" aria-label="Menü">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#17202B" stroke-width="2" stroke-linecap="round"><path d="M5 8h14M5 16h14"/></svg>
     </button>
-  </div>
-  <div class="status" id="status"></div>
-  <div id="banner"></div>
-
-  <div class="card" id="dailyCard"></div>
+  </header>
+  <div id="notices"></div>
+  <section class="watch" id="watch"></section>
+  <section class="summary" id="summary"></section>
   <div id="metricGroups"></div>
-  <div style="margin:14px 4px 0"><button class="linkbtn" id="glossaryBtn">Tüm ölçütler ne anlama geliyor? →</button></div>
-  <div class="card" id="weeklyCard" style="margin-top:18px"></div>
-
-  <h3 style="font-size:15px;margin:22px 4px 10px" class="muted">Geçmiş yorumlar</h3>
-  <div class="seg" id="seg"><button data-k="daily" class="on">Günlük</button><button data-k="weekly">Haftalık</button></div>
+  <p style="margin:2px 2px 20px"><button class="textlink" id="glossaryBtn">Ölçütler ne anlama geliyor?</button></p>
+  <section class="weekly" id="weekly"></section>
+  <div class="tabs" id="tabs"><button data-k="daily" class="on">Önceki günler</button><button data-k="weekly">Önceki haftalar</button></div>
   <div id="past"></div>
 </section>
 
-<!-- METRIC DETAIL / GLOSSARY PAGE -->
 <div id="page" class="page hidden"><div class="page-in" id="pageIn"></div></div>
 
 <div id="sheet" class="sheet-bg hidden">
   <div class="sheet">
-    <div class="small muted" id="who"></div>
-    <button class="row" id="syncBtn">Verileri şimdi yenile</button>
-    <button class="row" id="profileBtn">Profil bilgilerim</button>
-    <button class="row" id="glossaryBtn2">Ölçütler sözlüğü</button>
-    <button class="row" id="installBtn">Ana ekrana nasıl eklerim?</button>
-    <button class="row" id="logoutBtn">Çıkış yap</button>
-    <button class="row danger" id="deleteBtn">Hesabımı ve tüm verilerimi sil</button>
-    <button class="row" id="closeSheet" style="text-align:center;background:none">Kapat</button>
+    <div class="who" id="who"></div>
+    <button class="item" id="syncBtn">Verileri şimdi yenile</button>
+    <button class="item" id="profileBtn">Profil bilgilerim</button>
+    <button class="item" id="glossaryBtn2">Ölçütler sözlüğü</button>
+    <button class="item" id="installBtn">Ana ekrana ekleme</button>
+    <button class="item" id="logoutBtn">Çıkış yap</button>
+    <button class="item danger" id="deleteBtn">Hesabımı ve verilerimi sil</button>
+    <button class="item" id="closeSheet" style="text-align:center;color:var(--muted)">Kapat</button>
   </div>
 </div>
 
@@ -207,9 +235,9 @@ let handoffNotice = false;
   if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 })();
 function errText(e) {
-  return ({ access_denied: "Google izni verilmedi.", server_missing_client_secret: "Sunucu ayarı eksik (client secret).",
-    token_exchange_failed: "Google girişi tamamlanamadı, tekrar dene.", state_expired: "Giriş süresi doldu, tekrar dene." })[e]
-    || "Giriş sırasında hata: " + e;
+  return ({ access_denied: "Google izni verilmedi. Tekrar bağlanıp izinleri onayla.", server_missing_client_secret: "Sunucu ayarı eksik. Mert'e haber ver.",
+    token_exchange_failed: "Google girişi tamamlanamadı. Tekrar dene.", state_expired: "Giriş süresi doldu. Tekrar dene." })[e]
+    || "Giriş tamamlanamadı (" + e + "). Tekrar dene.";
 }
 const token = () => localStorage.getItem(TOKEN_KEY);
 const STANDALONE = window.navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
@@ -217,8 +245,7 @@ const authUrl = (extra = "") => `${API}/gh-oauth-callback?start=1&return=${encod
 let pollTimer = null;
 $("loginBtn").onclick = () => {
   if (!STANDALONE) { location.href = authUrl(); return; }
-  // Home-screen app: Google sign-in can't finish inside the app's embedded browser and the app
-  // doesn't share storage with Safari. Sign in in Safari, then claim the session here.
+  // Home-screen app: sign in in Safari, then claim the session here (storage isn't shared).
   const nonce = Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) => b.toString(16).padStart(2, "0")).join("");
   localStorage.setItem("fmb_nonce", JSON.stringify({ nonce, t: Date.now() }));
   window.open(authUrl(`&handoff=${nonce}`), "_blank");
@@ -228,7 +255,7 @@ function startClaimPolling() {
   const saved = JSON.parse(localStorage.getItem("fmb_nonce") || "null");
   if (!saved || Date.now() - saved.t > 10 * 60 * 1000) { localStorage.removeItem("fmb_nonce"); return; }
   $("loginErr").style.color = "var(--muted)";
-  $("loginErr").textContent = "Girişi Safari'de tamamla, sonra bu uygulamaya geri dön. Bekleniyor…";
+  $("loginErr").textContent = "Girişi açılan pencerede tamamla, sonra buraya dön. Uygulama kendiliğinden açılacak.";
   const tick = async () => {
     try {
       const r = await fetch(`${API}/gh-api?action=claim`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nonce: saved.nonce }) });
@@ -237,7 +264,7 @@ function startClaimPolling() {
         clearInterval(pollTimer); localStorage.removeItem("fmb_nonce"); localStorage.setItem(TOKEN_KEY, b.token);
         $("loginErr").textContent = ""; load(); return;
       }
-      if (b.error) { clearInterval(pollTimer); localStorage.removeItem("fmb_nonce"); $("loginErr").style.color = "var(--bad)"; $("loginErr").textContent = "Giriş süresi doldu, tekrar dene."; }
+      if (b.error) { clearInterval(pollTimer); localStorage.removeItem("fmb_nonce"); $("loginErr").style.color = "var(--alert)"; $("loginErr").textContent = "Giriş süresi doldu. Tekrar dene."; }
     } catch {}
     if (Date.now() - saved.t > 10 * 60 * 1000) { clearInterval(pollTimer); localStorage.removeItem("fmb_nonce"); }
   };
@@ -245,18 +272,23 @@ function startClaimPolling() {
 }
 document.addEventListener("visibilitychange", () => { if (!document.hidden && !token() && localStorage.getItem("fmb_nonce")) startClaimPolling(); });
 
-async function api(action, method = "GET", params = "") {
-  const r = await fetch(`${API}/gh-api?action=${action}${params}`, { method, headers: { Authorization: `Bearer ${token()}` } });
+async function api(action, method = "GET", params = "", body) {
+  const headers = { Authorization: `Bearer ${token()}` };
+  if (body) headers["Content-Type"] = "application/json";
+  const r = await fetch(`${API}/gh-api?action=${action}${params}`, { method, headers, body: body ? JSON.stringify(body) : undefined });
   if (r.status === 401) { localStorage.removeItem(TOKEN_KEY); show("login"); throw new Error("unauthorized"); }
+  if (!r.ok) throw new Error("http_" + r.status);
   return r.json();
 }
 
 /* ---------- helpers ---------- */
 const fmt = (n, d = 0, signed = false) => n == null || isNaN(n) ? "–"
   : (signed && n > 0 ? "+" : "") + Number(n).toLocaleString("tr-TR", { maximumFractionDigits: d, minimumFractionDigits: d });
-const dayLabel = (d) => new Date(d + "T12:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
+const longDay = (d) => new Date(d + "T12:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
 const shortDay = (d) => new Date(d + "T12:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
 const isoDay = (date) => date.toLocaleDateString("en-CA");
+const TODAY = () => isoDay(new Date()), YESTERDAY = () => isoDay(new Date(Date.now() - 864e5));
+const whenWord = (d) => d === TODAY() ? "bugün" : d === YESTERDAY() ? "dün" : shortDay(d);
 function esc(s) { return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
 function md(s) {
   const inline = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
@@ -265,20 +297,19 @@ function md(s) {
     const line = raw.trim();
     if (/^[-•*] /.test(line)) { (list ||= []).push(`<li>${inline(line.slice(2))}</li>`); continue; }
     if (list) { out.push(`<ul>${list.join("")}</ul>`); list = null; }
-    if (line.startsWith("#")) out.push(`<p><b>${inline(line.replace(/^#+\s*/, ""))}</b></p>`);
-    else if (line) out.push(`<p>${inline(line)}</p>`);
+    if (line) out.push(`<p>${inline(line.replace(/^#+\s*/, ""))}</p>`);
   }
   if (list) out.push(`<ul>${list.join("")}</ul>`);
   return out.join("");
 }
 function toast(msg) {
-  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
-  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+  const t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2800);
 }
 function show(which) { $("login").classList.toggle("hidden", which !== "login"); $("app").classList.toggle("hidden", which !== "app"); }
 const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
 
-/* ---------- reading metric values ---------- */
+/* ---------- metric values ---------- */
 function valueOf(m, metrics) {
   if (!metrics) return null;
   if (m.countOnly) return metrics.count ?? 1;
@@ -308,287 +339,270 @@ function summary(m) {
   const last = lastIdx >= 0 ? s28[lastIdx] : null;
   const before = s28.slice(0, lastIdx >= 0 ? lastIdx : s28.length).map((p) => p.v).filter((v) => v != null);
   const vals = s28.map((p) => p.v).filter((v) => v != null);
-  return {
-    s28, last,
-    avg7: avg(before.slice(-7)), avg28: avg(before),
-    min: vals.length ? Math.min(...vals) : null, max: vals.length ? Math.max(...vals) : null,
-    count: vals.length,
-  };
-}
-function trendClass(m, diff) {
-  if (!diff || m.higher === "neutral") return "";
-  return (diff > 0) === (m.higher === "good") ? "g" : "b";
+  return { s28, last, avg7: avg(before.slice(-7)), avg28: avg(before),
+    min: vals.length ? Math.min(...vals) : null, max: vals.length ? Math.max(...vals) : null, count: vals.length };
 }
 function latestNote(id) {
   for (const i of state.data.insights) if (i.metric_notes && i.metric_notes[id]) return { text: i.metric_notes[id], ins: i };
   return null;
 }
+// Flags come from the most recent insight that has a watch list (daily first, else weekly).
+function watchList() {
+  const ins = state.data.insights.find((i) => i.kind === "daily") || state.data.insights.find((i) => i.kind === "weekly");
+  return Array.isArray(ins?.watch) ? ins.watch.filter((w) => w && METRICS.some((m) => m.id === w.metric)) : [];
+}
+const flagOf = (id) => watchList().find((w) => w.metric === id);
+const levelWord = (lv) => lv === "alert" ? "Dikkat" : "Takip et";
+function deltaText(m, s) {
+  if (!s.last || s.avg7 == null || m.countOnly) return "";
+  const diff = s.last.v - s.avg7;
+  if (m.signed) return `${diff >= 0 ? "▲" : "▼"} ${fmt(Math.abs(diff), m.d)} ${m.unit}`;
+  const pct = s.avg7 ? Math.round((diff / Math.abs(s.avg7)) * 100) : 0;
+  if (pct === 0) return "ortalamada";
+  return `${pct > 0 ? "▲" : "▼"} %${Math.abs(pct)}`;
+}
 
 /* ---------- charts ---------- */
-function spark(pts, color) {
-  const vals = pts.map((p) => p.v).filter((v) => v != null);
-  if (vals.length < 2) return "";
-  const min = Math.min(...vals), max = Math.max(...vals), span = max - min || 1;
-  const w = 100, h = 34, step = w / (pts.length - 1);
-  const bars = pts.map((p, i) => p.v == null ? "" :
-    `<rect x="${i * step - 2}" y="${h - 4 - ((p.v - min) / span) * (h - 8)}" width="4" height="${4 + ((p.v - min) / span) * (h - 8)}" rx="2" fill="${color}" opacity="${i === pts.length - 1 ? 1 : .45}"/>`).join("");
-  return `<svg viewBox="-3 0 106 ${h}" preserveAspectRatio="none">${bars}</svg>`;
+function spark(pts) {
+  const p14 = pts.slice(-14), vals = p14.map((p) => p.v).filter((v) => v != null);
+  if (vals.length < 2) return `<svg class="sp" viewBox="0 0 72 28"></svg>`;
+  const min = Math.min(...vals), max = Math.max(...vals), span = max - min || 1, n = p14.length, bw = 72 / n;
+  return `<svg class="sp" viewBox="0 0 72 28" aria-hidden="true">${p14.map((p, i) => p.v == null ? "" :
+    `<rect x="${i * bw + bw * .2}" y="${26 - 3 - ((p.v - min) / span) * 21}" width="${bw * .6}" height="${3 + ((p.v - min) / span) * 21}" rx="1" fill="${i === n - 1 ? "var(--data)" : "var(--data-soft)"}"/>`).join("")}</svg>`;
 }
-function bigChart(pts, m, color, mean) {
+function bigChart(pts, m, mean) {
   const vals = pts.map((p) => p.v).filter((v) => v != null);
-  if (!vals.length) return `<p class="empty" style="margin-top:12px">Son 4 haftada veri yok.</p>`;
+  if (!vals.length) return `<p class="muted" style="margin-top:14px">Son 4 haftada veri yok.</p>`;
   const lo = Math.min(...vals, mean ?? Infinity), hi = Math.max(...vals, mean ?? -Infinity);
   const pad = (hi - lo) * 0.15 || Math.abs(hi) * 0.1 || 1;
   const min = m.signed ? lo - pad : Math.max(0, lo - pad), max = hi + pad, span = max - min;
-  const W = 300, H = 150, top = 8, bottom = 22, ih = H - top - bottom, n = pts.length, bw = W / n;
+  const W = 300, H = 150, top = 6, bottom = 22, ih = H - top - bottom, n = pts.length, bw = W / n;
   const y = (v) => top + ih - ((v - min) / span) * ih;
-  let svg = `<div class="chartwrap" id="chartwrap"><div class="tip" id="tip"></div><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
-  svg += `<line id="cursor" x1="0" x2="0" y1="${top}" y2="${top + ih}" stroke="#eef1f5" stroke-opacity=".35" stroke-width="1" visibility="hidden"/>`;
+  let svg = `<div class="chartwrap" id="chartwrap"><div class="tip" id="tip"></div><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Son 4 haftanın grafiği">`;
+  svg += `<line id="cursor" x1="0" x2="0" y1="${top}" y2="${top + ih}" stroke="#17202B" stroke-opacity=".25" stroke-width="1" visibility="hidden"/>`;
   pts.forEach((p, i) => {
     if (p.v == null) return;
     const yy = y(p.v), base = m.signed ? y(0) : top + ih;
-    svg += `<rect data-i="${i}" x="${i * bw + bw * 0.18}" y="${Math.min(yy, base)}" width="${bw * 0.64}" height="${Math.max(2, Math.abs(base - yy))}" rx="2" fill="${color}" opacity="${i === n - 1 ? 1 : .55}"/>`;
+    svg += `<rect data-i="${i}" x="${i * bw + bw * 0.2}" y="${Math.min(yy, base)}" width="${bw * 0.6}" height="${Math.max(2, Math.abs(base - yy))}" rx="1.5" fill="${i === n - 1 ? "#2D5B86" : "#9FB6CC"}"/>`;
   });
-  if (mean != null) svg += `<line x1="0" x2="${W}" y1="${y(mean)}" y2="${y(mean)}" stroke="#eef1f5" stroke-opacity=".5" stroke-dasharray="4 4" stroke-width="1"/>`;
+  if (mean != null) svg += `<line x1="0" x2="${W}" y1="${y(mean)}" y2="${y(mean)}" stroke="#17202B" stroke-opacity=".45" stroke-dasharray="3 4" stroke-width="1"/>`;
   [0, Math.floor(n / 2), n - 1].forEach((i) => {
-    svg += `<text x="${i * bw + bw / 2}" y="${H - 6}" fill="#8b96a5" font-size="10" text-anchor="${i === 0 ? "start" : i === n - 1 ? "end" : "middle"}">${shortDay(pts[i].day)}</text>`;
+    svg += `<text x="${i * bw + bw / 2}" y="${H - 5}" fill="#667180" font-size="10" font-family="Instrument Sans, sans-serif" text-anchor="${i === 0 ? "start" : i === n - 1 ? "end" : "middle"}">${shortDay(pts[i].day)}</text>`;
   });
   return svg + "</svg></div>";
 }
-// Drag a finger (or mouse) across the chart to read each day's value.
 function attachScrub(pts, m) {
   const wrap = $("chartwrap"); if (!wrap) return;
   const tip = $("tip"), cursor = wrap.querySelector("#cursor"), rects = [...wrap.querySelectorAll("rect")];
   const n = pts.length, W = 300; let hideT = null, lastI = -1;
+  const paint = (sel) => rects.forEach((el) => el.setAttribute("fill", +el.dataset.i === sel ? "#2D5B86" : sel === -1 && +el.dataset.i === n - 1 ? "#2D5B86" : "#9FB6CC"));
   const showAt = (clientX) => {
     const r = wrap.getBoundingClientRect();
     const i = Math.max(0, Math.min(n - 1, Math.floor(((clientX - r.left) / r.width) * n)));
     if (i === lastI) return; lastI = i;
     const p = pts[i], cx = (i + 0.5) / n;
     cursor.setAttribute("x1", cx * W); cursor.setAttribute("x2", cx * W); cursor.setAttribute("visibility", "visible");
-    rects.forEach((el) => el.setAttribute("opacity", +el.dataset.i === i ? 1 : .3));
-    tip.textContent = `${shortDay(p.day)} · ${p.v == null ? "veri yok" : fmt(p.v, m.d, m.signed) + (m.unit ? " " + m.unit : "")}`;
-    tip.style.left = `${Math.min(Math.max(cx * r.width, 60), r.width - 60)}px`;
+    paint(i);
+    tip.textContent = `${shortDay(p.day)}  ${p.v == null ? "veri yok" : fmt(p.v, m.d, m.signed) + (m.unit ? " " + m.unit : "")}`;
+    tip.style.left = `${Math.min(Math.max(cx * r.width, 56), r.width - 56)}px`;
     tip.classList.add("on");
-    if (navigator.vibrate) navigator.vibrate(3);
   };
-  const reset = () => {
-    clearTimeout(hideT);
-    hideT = setTimeout(() => {
-      lastI = -1; tip.classList.remove("on"); cursor.setAttribute("visibility", "hidden");
-      rects.forEach((el) => el.setAttribute("opacity", +el.dataset.i === n - 1 ? 1 : .55));
-    }, 1800);
-  };
+  const reset = () => { clearTimeout(hideT); hideT = setTimeout(() => { lastI = -1; tip.classList.remove("on"); cursor.setAttribute("visibility", "hidden"); paint(-1); }, 1800); };
   wrap.addEventListener("pointerdown", (e) => { clearTimeout(hideT); wrap.setPointerCapture(e.pointerId); showAt(e.clientX); });
   wrap.addEventListener("pointermove", (e) => { if (e.buttons || e.pointerType !== "mouse") showAt(e.clientX); });
   wrap.addEventListener("pointerup", reset);
   wrap.addEventListener("pointercancel", reset);
 }
 
-/* ---------- render home ---------- */
+/* ---------- home ---------- */
+function greeting() {
+  const h = new Date().getHours();
+  return h < 5 ? "İyi geceler" : h < 12 ? "Günaydın" : h < 18 ? "İyi günler" : "İyi akşamlar";
+}
 function render() {
   const { user, insights } = state.data;
-  const synced = user.last_sync_at ? new Date(user.last_sync_at).toLocaleString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : null;
-  $("status").innerHTML = synced
-    ? `<span class="dot${user.sync_error ? " warn" : ""}"></span> Son senkron: ${synced}`
-    : `<span class="dot warn"></span> İlk senkron sürüyor, birkaç dakika içinde veriler gelecek.`;
-  $("who").textContent = user.email ? `${user.display_name || ""} · ${user.email}` : "";
-  const needProfile = !user.sex || !user.height_cm;
-  $("banner").innerHTML = (needProfile ? `<div class="card" style="border:1px solid var(--line)"><div class="eyebrow teal">Yorumları kişiselleştir</div>
-      <p style="margin:4px 0 10px;font-size:15px">Yaşın Google'dan geliyor${user.age ? ` (${user.age})` : ""}. ${!user.sex ? "Cinsiyet" : ""}${!user.sex && !user.height_cm ? " ve " : ""}${!user.height_cm ? "boy" : ""} bilgini de eklersen nabız, HRV, VO₂ max ve kilo yorumları sana göre ayarlanır.</p>
-      <button class="linkbtn" onclick="openProfile()">Profilimi tamamla →</button></div>` : "") + (user.needs_reauth
-    ? `<div class="banner">Google bağlantının süresi dolmuş, verilerin güncellenemiyor.<br><button onclick="document.getElementById('loginBtn').click()">Yeniden bağlan</button></div>` : "");
+  const first = (user.display_name || "").split(" ")[0];
+  $("hello").textContent = first ? `${greeting()}, ${first}` : greeting();
+  const synced = user.last_sync_at ? new Date(user.last_sync_at).toLocaleString("tr-TR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" }) : null;
+  $("status").textContent = synced ? `Veriler ${synced} itibarıyla güncel` : "İlk veriler birkaç dakika içinde gelecek";
+  $("who").textContent = user.email ? `${user.display_name || ""}, ${user.email}` : "";
 
+  let notices = "";
+  if (user.needs_reauth) notices += `<div class="notice warn">Google bağlantın koptu, verilerin güncellenmiyor.<br><button class="textlink" onclick="document.getElementById('loginBtn').click()">Yeniden bağlan</button></div>`;
+  if (handoffNotice) { handoffNotice = false; notices += `<div class="notice">Giriş tamamlandı. Ana ekrandaki FitMyBit'e dönebilirsin, orada da açık olacak.</div>`; }
+  if (!user.sex || !user.height_cm) {
+    const miss = [!user.sex && "cinsiyetini", !user.height_cm && "boyunu"].filter(Boolean).join(" ve ");
+    notices += `<div class="notice">Yorumların sana göre ayarlanması için ${miss} ekle.<br><button class="textlink" onclick="openProfile()">Profili tamamla</button></div>`;
+  }
+  $("notices").innerHTML = notices;
+
+  // watch panel
+  const wl = watchList();
   const d1 = insights.find((i) => i.kind === "daily");
-  $("dailyCard").innerHTML = d1
-    ? `<div class="eyebrow">Dünün özeti · ${dayLabel(d1.period_start)}</div>
-       ${d1.title ? `<h2>${esc(d1.title)}</h2>` : ""}
-       <div class="insight">${md(d1.content)}</div>${chips(d1.highlights)}
-       <p class="small muted" style="margin:12px 0 0">Bir ölçütün üstüne dokunarak detayını, yorumunu ve ne anlama geldiğini görebilirsin.</p>`
-    : `<div class="eyebrow">Dünün özeti</div><p class="empty">İlk yorumun yarın sabah 09:00 civarı burada olacak. Verilerin toplanmaya başladı.</p>`;
+  if (wl.length) {
+    $("watch").innerHTML = `<h2>Takip etmen gerekenler</h2>` + wl.map((w) => {
+      const m = METRICS.find((x) => x.id === w.metric), s = summary(m);
+      return `<button class="witem ${w.level === "alert" ? "alert" : "watch"}-l" data-metric="${m.id}">
+        <span class="bar"></span>
+        <span><span class="n">${m.label}</span><span class="lv">${levelWord(w.level)}</span></span>
+        <span class="v">${s.last ? fmt(s.last.v, m.d, m.signed) + " " + m.unit : ""}</span>
+        <span class="r">${esc(w.reason || "")}</span></button>`;
+    }).join("");
+    $("watch").classList.remove("hidden");
+  } else if (d1) {
+    $("watch").innerHTML = `<div class="calm"><i></i>Son yoruma göre takip gerektiren bir değer yok.</div>`;
+    $("watch").classList.remove("hidden");
+  } else $("watch").classList.add("hidden");
+
+  $("summary").innerHTML = d1
+    ? `<p class="when">${longDay(d1.period_start)} özeti</p>${d1.title ? `<h2>${esc(d1.title)}</h2>` : ""}<div class="prose">${md(d1.content)}</div>`
+    : `<p class="when">Dünün özeti</p><h2>İlk yorumun yarın sabah 09:00 civarı gelecek</h2><p class="prose">Verilerin toplanıyor. Aşağıdaki değerlere dokunarak her birinin detayına ve ne anlama geldiğine bakabilirsin.</p>`;
 
   $("metricGroups").innerHTML = GROUPS.map((g) => {
-    const tiles = METRICS.filter((m) => m.group === g.id).map((m) => ({ m, s: summary(m) }))
-      .filter(({ m, s }) => m.core || s.count > 0);
-    if (!tiles.length) return "";
-    return `<div class="grouph"><h3>${g.label}</h3></div><div class="grid">${tiles.map(({ m, s }) => tile(m, s)).join("")}</div>`;
+    const rows = METRICS.filter((m) => m.group === g.id).map((m) => ({ m, s: summary(m) })).filter(({ m, s }) => m.core || s.count > 0);
+    if (!rows.length) return "";
+    return `<section class="group"><h3>${g.label}</h3>${g.id === GROUPS[0].id ? `<p class="d muted" style="font-size:13px;margin:-4px 2px 8px">Oklar son değerin 7 günlük ortalamana göre değişimini gösterir.</p>` : ""}<div class="list">${rows.map(({ m, s }) => row(m, s)).join("")}</div></section>`;
   }).join("");
   document.querySelectorAll("[data-metric]").forEach((b) => b.onclick = () => openMetric(b.dataset.metric));
 
   const w = insights.find((i) => i.kind === "weekly");
-  $("weeklyCard").innerHTML = w
-    ? `<div class="eyebrow teal">Haftanın özeti · ${shortDay(w.period_start)} – ${shortDay(w.period_end)}</div>
-       ${w.title ? `<h2>${esc(w.title)}</h2>` : ""}<div class="insight">${md(w.content)}</div>${chips(w.highlights)}`
-    : `<div class="eyebrow teal">Haftanın özeti</div><p class="empty">Haftalık özet her pazar sabahı gelir.</p>`;
+  $("weekly").innerHTML = w
+    ? `<p class="when">${shortDay(w.period_start)} – ${shortDay(w.period_end)} haftası</p>${w.title ? `<h2>${esc(w.title)}</h2>` : ""}<div class="prose">${md(w.content)}</div>`
+    : `<p class="when">Haftalık özet</p><h2>Her pazar sabahı gelir</h2><p class="prose">Haftanın ortalamalarını önceki haftalarla karşılaştırır ve gelecek hafta için bir iki hedef önerir.</p>`;
   renderPast();
 }
-function tile(m, s) {
-  const color = m.group === "sleep" || m.group === "heart" ? "var(--accent2)" : "var(--accent)";
-  let delta = "Veri yok";
-  if (s.last) {
-    const when = s.last.day === isoDay(new Date()) ? "Bugün" : s.last.day === isoDay(new Date(Date.now() - 864e5)) ? "Dün" : shortDay(s.last.day);
-    delta = when;
-    if (s.avg7 != null && !m.countOnly) {
-      const diff = s.last.v - s.avg7;
-      if (m.signed) {
-        delta += ` · <span>${fmt(diff, m.d, true)} ${m.unit}</span> 7g ort.`;
-      } else {
-        const pct = s.avg7 ? Math.round((diff / Math.abs(s.avg7)) * 100) : 0;
-        delta += ` · <span class="${trendClass(m, diff)}">${pct > 0 ? "+" : ""}${pct}%</span> 7g ort.`;
-      }
-    }
-  }
-  const hasNote = !!latestNote(m.id);
-  return `<button class="tile" data-metric="${m.id}">
-    <span class="chev">›</span>${hasNote ? '<span class="dot2" title="Yorum var"></span>' : ""}
-    <div class="lbl">${m.label}</div>
-    <div class="val">${s.last ? fmt(s.last.v, m.d, m.signed) : "–"}<small>${s.last ? m.unit : ""}</small></div>
-    <div class="delta">${delta}</div>${spark(s.s28.slice(-14), color)}</button>`;
-}
-function chips(h) {
-  if (!Array.isArray(h) || !h.length) return "";
-  return `<div class="chips">${h.map((c) => {
-    const o = typeof c === "string" ? { text: c } : c;
-    return `<span class="chip ${o.trend === "up" ? "up" : o.trend === "down" ? "down" : ""}">${esc(o.text || o.label || "")}</span>`;
-  }).join("")}</div>`;
+function row(m, s) {
+  const f = flagOf(m.id);
+  const w = s.last ? whenWord(s.last.day) : "";
+  const sub = s.last ? `${w[0].toUpperCase() + w.slice(1)}${deltaText(m, s) ? "&ensp;" + deltaText(m, s) : ""}` : "Henüz veri yok";
+  return `<button class="row${f ? (f.level === "alert" ? " flag-alert" : " flag-watch") : ""}" data-metric="${m.id}">
+    <span><span class="l">${m.label}</span>${f ? `<span class="tag">${levelWord(f.level)}</span>` : ""}<span class="d" style="display:block">${sub}</span></span>
+    <span class="val">${s.last ? fmt(s.last.v, m.d, m.signed) : "–"}<small>${s.last ? m.unit : ""}</small></span>
+    ${spark(s.s28)}</button>`;
 }
 function renderPast() {
   const list = state.data.insights.filter((i) => i.kind === state.pastKind).slice(1);
   $("past").innerHTML = list.length ? list.map((i) => `<details class="past"><summary>
-      <span>${esc(i.title || (i.kind === "daily" ? dayLabel(i.period_start) : "Hafta"))}</span>
-      <span class="muted small">${i.kind === "daily" ? shortDay(i.period_start) : shortDay(i.period_start) + "–" + shortDay(i.period_end)}</span>
-    </summary><div class="insight">${md(i.content)}</div></details>`).join("")
-    : `<p class="empty" style="padding:0 4px">Henüz geçmiş yorum yok.</p>`;
+      <span>${esc(i.title || (i.kind === "daily" ? longDay(i.period_start) : "Hafta"))}</span>
+      <span class="muted">${i.kind === "daily" ? shortDay(i.period_start) : shortDay(i.period_start) + " – " + shortDay(i.period_end)}</span>
+    </summary><div class="prose">${md(i.content)}</div></details>`).join("")
+    : `<p class="muted" style="padding:4px 2px 0">${state.pastKind === "daily" ? "Önceki günlerin yorumları burada birikecek." : "Önceki haftaların özetleri burada birikecek."}</p>`;
 }
-$("seg").onclick = (e) => {
+$("tabs").onclick = (e) => {
   const b = e.target.closest("button"); if (!b) return;
   state.pastKind = b.dataset.k;
-  [...$("seg").children].forEach((x) => x.classList.toggle("on", x === b));
+  [...$("tabs").children].forEach((x) => x.classList.toggle("on", x === b));
   renderPast();
 };
 
-/* ---------- metric detail page ---------- */
-const BACK = `<button class="back" onclick="closePage()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Geri</button>`;
+/* ---------- pages ---------- */
+const BACK = `<button class="back" onclick="closePage()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Özet</button>`;
 function explainHTML(info) {
   const sec = [["Bu ne ölçer?", info.what], ["Nasıl ölçülür?", info.how], ["Normal aralık", info.range],
-    ["Yükselirse ne anlama gelir?", info.up], ["Düşerse ne anlama gelir?", info.down], ["Neler etkiler?", info.affects], ["İpucu", info.tip]];
+    ["Yükselirse", info.up], ["Düşerse", info.down], ["Neler etkiler?", info.affects], ["İpucu", info.tip]];
   return `<div class="explain">${sec.filter(([, t]) => t && t !== "—").map(([h, t]) => `<h4>${h}</h4><p>${esc(t)}</p>`).join("")}</div>`;
 }
 function openMetric(id) {
   const m = METRICS.find((x) => x.id === id); if (!m) return;
-  const s = summary(m);
-  const color = m.group === "sleep" || m.group === "heart" ? "#4fd1b5" : "#ff6a3d";
-  const note = latestNote(id);
-  const when = s.last ? (s.last.day === isoDay(new Date()) ? "bugün" : dayLabel(s.last.day)) : null;
+  const s = summary(m), note = latestNote(id), f = flagOf(id);
   let cmp = "";
   if (s.last && s.avg28 != null && !m.countOnly) {
     const diff = s.last.v - s.avg28;
-    cmp = `<p class="small" style="margin:6px 0 0">4 haftalık ortalamandan <span style="color:${trendClass(m, diff) === "g" ? "var(--accent2)" : trendClass(m, diff) === "b" ? "var(--bad)" : "var(--text)"}">${fmt(Math.abs(diff), m.d)} ${m.unit} ${diff >= 0 ? "yüksek" : "düşük"}</span>.</p>`;
+    cmp = Math.abs(diff) < Math.pow(10, -m.d) / 2 ? "4 haftalık ortalamanla aynı." : `4 haftalık ortalamandan ${fmt(Math.abs(diff), m.d)} ${m.unit} ${diff > 0 ? "yüksek" : "düşük"}.`;
   }
   $("pageIn").innerHTML = `${BACK}
-    <div class="eyebrow">${GROUPS.find((g) => g.id === m.group).label}</div>
-    <h2 style="font-size:24px">${m.label}</h2>
-    <div class="card" style="margin-top:14px">
+    <h1 class="ptitle">${m.label}</h1><p class="pgroup">${GROUPS.find((g) => g.id === m.group).label}</p>
+    <div class="panel">
       ${s.last ? `<div class="big">${fmt(s.last.v, m.d, m.signed)}<small>${m.unit}</small></div>
-        <div class="small muted">Son değer · ${when}</div>${cmp}` : `<p class="empty">Bu ölçüt için henüz veri yok. Cihazın ölçmüyorsa ya da ilgili izni vermediysen burada boş kalır.</p>`}
-      ${bigChart(s.s28, m, color, s.avg28)}
-      ${s.count ? `<div class="small muted" style="margin-top:2px">Son 4 hafta · kesikli çizgi = ortalaman · günlere bakmak için parmağını grafikte gezdir</div>
+        <p class="cmp">${whenWord(s.last.day)[0].toUpperCase() + whenWord(s.last.day).slice(1)} ölçüldü. ${cmp}</p>` : `<p class="muted">Bu ölçüt için henüz veri yok. Cihazın ölçmüyorsa ya da ilgili izni vermediysen boş kalır.</p>`}
+      ${f ? `<div class="flagnote ${f.level === "alert" ? "alert" : "watch"}-l"><b>${levelWord(f.level)}:</b> ${esc(f.reason || "")}</div>` : ""}
+      ${bigChart(s.s28, m, s.avg28)}
+      ${s.count ? `<p class="hint">Son 4 hafta. Kesikli çizgi ortalaman. Günlere bakmak için parmağını grafikte gezdir.</p>
       <div class="stats">
-        <div class="stat"><div class="k">7g ort.</div><div class="v">${fmt(s.avg7, m.d, m.signed)}</div></div>
-        <div class="stat"><div class="k">28g ort.</div><div class="v">${fmt(s.avg28, m.d, m.signed)}</div></div>
+        <div class="stat"><div class="k">7 gün ort.</div><div class="v">${fmt(s.avg7, m.d, m.signed)}</div></div>
+        <div class="stat"><div class="k">28 gün ort.</div><div class="v">${fmt(s.avg28, m.d, m.signed)}</div></div>
         <div class="stat"><div class="k">En düşük</div><div class="v">${fmt(s.min, m.d, m.signed)}</div></div>
         <div class="stat"><div class="k">En yüksek</div><div class="v">${fmt(s.max, m.d, m.signed)}</div></div>
       </div>` : ""}
     </div>
-    <div class="card">
-      <div class="eyebrow">Claude'un yorumu</div>
-      ${note ? `<div class="insight">${md(note.text)}</div><p class="small muted" style="margin:10px 0 0">${note.ins.kind === "daily" ? dayLabel(note.ins.period_start) : "Haftalık özet"} yorumundan</p>`
-        : `<p class="empty">Bu ölçüt için henüz yorum yok. Veri geldikçe her sabahki özetle birlikte burada kısa bir yorum olacak.</p>`}
+    <div class="panel"><h3>Senin için ne anlama geliyor</h3>
+      ${note ? `<div class="prose">${md(note.text)}</div><p class="hint">${note.ins.kind === "daily" ? longDay(note.ins.period_start) + " yorumundan" : "Haftalık özetten"}</p>`
+        : `<p class="prose">Bu ölçüt için henüz kişisel yorum yok. Veri geldikçe her sabahki özetle birlikte burada kısa bir yorum olacak.</p>`}
     </div>
-    <div class="card">
-      <div class="eyebrow teal">Bu ölçüt ne anlama geliyor?</div>
-      ${explainHTML(m.info)}
-    </div>
-    <p class="small muted" style="padding:0 4px">Bu açıklamalar genel bilgi amaçlıdır, tıbbi tavsiye değildir. Kaygı verici bir değişiklik fark edersen bir sağlık profesyoneline danış.</p>`;
+    <div class="panel"><h3>Bu ölçüt nedir</h3>${explainHTML(m.info)}</div>
+    <p class="disclaimer">Bu açıklamalar genel bilgi amaçlıdır, tıbbi tavsiye değildir. Kaygı verici bir değişiklik fark edersen bir sağlık profesyoneline danış.</p>`;
   openPage();
   attachScrub(s.s28, m);
 }
 function openGlossary() {
   $("sheet").classList.add("hidden");
-  $("pageIn").innerHTML = `${BACK}<h2 style="font-size:24px">Ölçütler sözlüğü</h2>
-    <p class="muted" style="margin:6px 0 16px">Google Health'teki her ölçütün ne olduğu, nasıl ölçüldüğü ve değişince ne anlama geldiği.</p>
-    ${GROUPS.map((g) => `<div class="grouph"><h3>${g.label}</h3></div>` + METRICS.filter((m) => m.group === g.id).map((m) =>
-      `<details class="gl-item"><summary><span>${m.label}</span><span class="muted">${esc(m.unit)}</span></summary>${explainHTML(m.info)}</details>`).join("")).join("")}`;
+  $("pageIn").innerHTML = `${BACK}<h1 class="ptitle">Ölçütler sözlüğü</h1>
+    <p class="cmp" style="margin-bottom:18px">Her ölçütün ne olduğu, nasıl ölçüldüğü ve değişince ne anlama geldiği.</p>
+    ${GROUPS.map((g) => `<section class="group"><h3>${g.label}</h3>` + METRICS.filter((m) => m.group === g.id).map((m) =>
+      `<details class="gl"><summary><span>${m.label}</span><span class="muted">${esc(m.unit)}</span></summary>${explainHTML(m.info)}</details>`).join("") + `</section>`).join("")}`;
+  openPage();
+}
+function openProfile() {
+  $("sheet").classList.add("hidden");
+  const u = state.data.user; let sex = u.sex || null;
+  $("pageIn").innerHTML = `${BACK}<h1 class="ptitle">Profil bilgilerim</h1>
+    <p class="cmp">Yorumlar bu bilgilere göre ayarlanır. Dinlenme nabzı, HRV ve VO₂ max yaşa ve cinsiyete göre farklı değerlendirilir; kilo boyla birlikte yorumlanır.</p>
+    <div class="panel">
+      <div class="pfrow"><div><div class="k">Yaş</div><div class="s">Google Health profilinden</div></div><div style="font-weight:600">${u.age ?? "–"}</div></div>
+      <div class="pfrow"><div><div class="k">Cinsiyet</div><div class="s">Google paylaşmıyor, senden alıyoruz</div></div>
+        <div class="segsm" id="sexSeg"><button data-v="female" class="${sex === "female" ? "on" : ""}">Kadın</button><button data-v="male" class="${sex === "male" ? "on" : ""}">Erkek</button></div></div>
+      <div class="pfrow"><div><div class="k">Boy</div><div class="s">${u.height_source === "google" ? "Google Health'ten, cm" : u.height_source === "user" ? "Senin girdiğin, cm" : "Google'da kayıtlı değil, cm"}</div></div>
+        <input class="numin" id="heightIn" type="number" inputmode="numeric" min="100" max="250" value="${u.height_cm ?? ""}" placeholder="175" aria-label="Boy (cm)"></div>
+      <button class="btn" id="saveProfile">Kaydet</button>
+    </div>
+    <p class="disclaimer">Bu bilgiler yalnızca senin yorumlarında kullanılır. Hesabını sildiğinde bunlar da silinir.</p>`;
+  $("sexSeg").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; sex = b.dataset.v; [...$("sexSeg").children].forEach((x) => x.classList.toggle("on", x === b)); };
+  $("saveProfile").onclick = async () => {
+    const h = Number($("heightIn").value), body = {};
+    if (sex && sex !== u.sex) body.sex = sex;
+    if ($("heightIn").value && h !== Number(u.height_cm)) { if (h < 100 || h > 250) { toast("Boyu santimetre olarak gir (100–250)."); return; } body.height_cm = h; }
+    if (!Object.keys(body).length) { closePage(); return; }
+    if (DEMO) { Object.assign(u, body); toast("Kaydedildi."); closePage(); render(); return; }
+    try { await api("profile", "POST", "", body); toast("Kaydedildi. Yarınki yorumdan itibaren dikkate alınacak."); closePage(); await load(); }
+    catch { toast("Kaydedilemedi. Bağlantını kontrol edip tekrar dene."); }
+  };
   openPage();
 }
 function openPage() { $("page").classList.remove("hidden"); $("page").scrollTop = 0; document.body.classList.add("locked"); history.pushState({ page: 1 }, ""); }
 function closePage() { if (history.state && history.state.page) history.back(); else hidePage(); }
 function hidePage() { $("page").classList.add("hidden"); document.body.classList.remove("locked"); }
 window.addEventListener("popstate", hidePage);
-function openProfile() {
-  $("sheet").classList.add("hidden");
-  const u = state.data.user; let sex = u.sex || null;
-  $("pageIn").innerHTML = `${BACK}<h2 style="font-size:24px">Profil bilgilerim</h2>
-    <p class="muted" style="margin:6px 0 14px">Yorumlar bu bilgilere göre ayarlanır: örneğin dinlenme nabzı, HRV ve VO₂ max yaşa ve cinsiyete göre farklı aralıklarda değerlendirilir, kilo boyla birlikte (vücut kitle indeksi) yorumlanır.</p>
-    <div class="card">
-      <div class="pfrow"><div><div class="k">Yaş</div><div class="s">Google Health profilinden</div></div><div style="font-weight:700">${u.age ?? "–"}</div></div>
-      <div class="pfrow"><div><div class="k">Cinsiyet</div><div class="s">Google bu bilgiyi paylaşmıyor, senden alıyoruz</div></div>
-        <div class="segsm" id="sexSeg"><button data-v="female" class="${sex === "female" ? "on" : ""}">Kadın</button><button data-v="male" class="${sex === "male" ? "on" : ""}">Erkek</button></div></div>
-      <div class="pfrow"><div><div class="k">Boy (cm)</div><div class="s">${u.height_source === "google" ? "Google Health'ten" : u.height_source === "user" ? "Senin girdiğin" : "Google'da kayıtlı değil"}</div></div>
-        <input class="numin" id="heightIn" type="number" inputmode="numeric" min="100" max="250" value="${u.height_cm ?? ""}" placeholder="175"></div>
-      <button class="btn" id="saveProfile">Kaydet</button>
-    </div>
-    <p class="small muted" style="padding:0 4px">Bu bilgiler yalnızca senin yorumlarında kullanılır. Ayarlar'dan hesabını sildiğinde bunlar da silinir.</p>`;
-  $("sexSeg").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; sex = b.dataset.v; [...$("sexSeg").children].forEach((x) => x.classList.toggle("on", x === b)); };
-  $("saveProfile").onclick = async () => {
-    const h = Number($("heightIn").value);
-    const body = {}; if (sex) body.sex = sex;
-    if ($("heightIn").value && h !== Number(u.height_cm)) { if (h < 100 || h > 250) { toast("Boyu cm olarak gir (100–250)."); return; } body.height_cm = h; }
-    if (!Object.keys(body).length) { closePage(); return; }
-    if (DEMO) { Object.assign(u, body); toast("Kaydedildi."); closePage(); render(); return; }
-    const r = await fetch(`${API}/gh-api?action=profile`, { method: "POST", headers: { Authorization: `Bearer ${token()}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    if (r.ok) { toast("Kaydedildi. Yarınki yorumdan itibaren dikkate alınacak."); closePage(); await load(); } else toast("Kaydedilemedi, tekrar dene.");
-  };
-  openPage();
-}
-$("profileBtn").onclick = openProfile;
-$("glossaryBtn").onclick = openGlossary; $("glossaryBtn2").onclick = openGlossary;
+$("glossaryBtn").onclick = openGlossary; $("glossaryBtn2").onclick = openGlossary; $("profileBtn").onclick = openProfile;
 
 /* ---------- menu ---------- */
 $("menuBtn").onclick = () => $("sheet").classList.remove("hidden");
 $("closeSheet").onclick = () => $("sheet").classList.add("hidden");
 $("sheet").onclick = (e) => { if (e.target.id === "sheet") $("sheet").classList.add("hidden"); };
 $("syncBtn").onclick = async () => {
-  $("sheet").classList.add("hidden"); toast("Veriler yenileniyor…");
-  try {
-    const r = await api("sync", "POST");
-    toast(r.skipped ? "Az önce yenilendi, birazdan tekrar dene." : "Veriler güncellendi.");
-    await load();
-  } catch { toast("Yenileme başarısız."); }
+  $("sheet").classList.add("hidden"); toast("Veriler yenileniyor");
+  try { const r = await api("sync", "POST"); toast(r.skipped ? "Veriler birkaç dakika önce yenilendi." : "Veriler yenilendi."); await load(); }
+  catch { toast("Yenilenemedi. Bağlantını kontrol edip tekrar dene."); }
 };
 $("installBtn").onclick = () => {
   $("sheet").classList.add("hidden");
-  alert("iPhone: Safari'de Paylaş simgesi → 'Ana Ekrana Ekle'.\nAndroid: Chrome menüsü (⋮) → 'Ana ekrana ekle'.");
+  alert("iPhone: Safari'de Paylaş simgesine, sonra 'Ana Ekrana Ekle'ye dokun.\nAndroid: Chrome menüsünden 'Ana ekrana ekle'yi seç.");
 };
 $("logoutBtn").onclick = async () => {
   try { await api("logout", "POST"); } catch {}
   localStorage.removeItem(TOKEN_KEY); $("sheet").classList.add("hidden"); show("login");
 };
 $("deleteBtn").onclick = async () => {
-  if (!confirm("Hesabın, tüm sağlık verilerin ve yorumların kalıcı olarak silinecek. Emin misin?")) return;
+  if (!confirm("Hesabın, tüm sağlık verilerin ve yorumların kalıcı olarak silinecek. Devam edilsin mi?")) return;
   try { await api("delete_account", "POST"); } catch {}
-  localStorage.removeItem(TOKEN_KEY); $("sheet").classList.add("hidden"); show("login"); toast("Hesabın silindi.");
+  localStorage.removeItem(TOKEN_KEY); $("sheet").classList.add("hidden"); show("login"); toast("Hesabın ve verilerin silindi.");
 };
 
 /* ---------- boot ---------- */
 async function load() {
   if (DEMO) { state.data = demoData(); render(); show("app"); return; }
   if (!token()) { show("login"); if (localStorage.getItem("fmb_nonce")) startClaimPolling(); return; }
-  try {
-    state.data = await api("dashboard", "GET", "&days=35"); render(); show("app");
-    if (handoffNotice) { handoffNotice = false; $("banner").insertAdjacentHTML("afterbegin", `<div class="banner" style="background:#10261f;border-color:#1f5a4a;color:#9ff0d8">Giriş tamamlandı ✓ Ana ekrandaki FitMyBit uygulamasına geri dönebilirsin; orada da otomatik olarak açılacak.</div>`); }
-  }
-  catch (e) { if (e.message !== "unauthorized") { show("app"); $("status").textContent = "Bağlantı hatası, tekrar dene."; } }
+  try { state.data = await api("dashboard", "GET", "&days=35"); render(); show("app"); }
+  catch (e) { if (e.message !== "unauthorized") { show("app"); $("status").textContent = "Veriler yüklenemedi. Bağlantını kontrol edip sayfayı yenile."; } }
 }
 function demoData() {
   const daily = []; const t = new Date(); const r = (a, b) => a + Math.round(Math.random() * (b - a));
@@ -604,29 +618,30 @@ function demoData() {
       push("sedentary-period", { "sedentaryPeriod.durationSum_s": r(25000, 40000) });
     }
     push("sleep", { total_minutes: r(330, 480), "main.summary.minutesAsleep": r(320, 460), "stages.deep_min": r(40, 100), "stages.rem_min": r(60, 120), "stages.light_min": r(180, 260), "stages.awake_min": r(10, 40) });
-    push("daily-resting-heart-rate", { "dailyRestingHeartRate.beatsPerMinute": r(56, 64) });
-    push("daily-heart-rate-variability", { averageHeartRateVariabilityMilliseconds: r(32, 58), deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds: r(30, 70), entropy: 3.1 });
-    push("daily-respiratory-rate", { "dailyRespiratoryRate.breathsPerMinute": 14 + Math.random() * 2 });
-    push("daily-oxygen-saturation", { "dailyOxygenSaturation.averagePercentage": 95 + Math.random() * 3 });
-    push("daily-sleep-temperature-derivations", { nightlyTemperatureCelsius: 33.4 + (Math.random() - 0.5) * 1.2, baselineTemperatureCelsius: 33.4, relativeNightlyStddev30dCelsius: 0.4 });
+    push("daily-resting-heart-rate", { beatsPerMinute: i < 3 ? r(66, 69) : r(58, 62) });
+    push("daily-heart-rate-variability", { averageHeartRateVariabilityMilliseconds: r(32, 58) });
+    push("daily-respiratory-rate", { breathsPerMinute: 14 + Math.random() * 2 });
+    push("daily-oxygen-saturation", { averagePercentage: 95 + Math.random() * 3 });
+    push("daily-sleep-temperature-derivations", { nightlyTemperatureCelsius: 33.4 + (Math.random() - 0.5) * 1.2, baselineTemperatureCelsius: 33.4 });
+    push("daily-vo2-max", { vo2Max: 32 + Math.random() });
   }
-  const y = isoDay(new Date(Date.now() - 864e5));
+  const y = YESTERDAY();
   return {
-    user: { email: "demo@example.com", display_name: "Demo", last_sync_at: new Date().toISOString(), age: 34, height_cm: null, sex: null },
+    user: { email: "demo@example.com", display_name: "Mert Demo", last_sync_at: new Date().toISOString(), age: 31, height_cm: 180, sex: "male" },
     daily,
     insights: [
-      { kind: "daily", period_start: y, period_end: y, title: "Hareketli gün, kısa gece",
-        content: "Dün **9.412 adım** attın, 7 günlük ortalamanın %8 üstünde. Bu gece ise 6 saat 10 dakika uyudun; ortalamandan 40 dakika az.\n- Dinlenme nabzın 61 bpm, normal aralığında.\n- HRV ortalamanın biraz altında; bugün yoğun antrenman yerine hafif tempo daha iyi olabilir.",
-        highlights: [{ text: "Adım +8%", trend: "up" }, { text: "Uyku −40 dk", trend: "down" }, { text: "Nabız stabil" }],
+      { kind: "daily", period_start: y, period_end: y, title: "Hareketli gün, toparlanma yarım",
+        content: "Dün **9.412 adım** attın, 7 günlük ortalamanın %8 üstünde. Bu gece 6 saat 10 dakika uyudun; ortalamandan 40 dakika az.\n- Dinlenme nabzın üç gecedir 66–69 bpm arasında, 4 haftalık ortalaman 60. Bu genelde yorgunluk, stres ya da başlayan bir hastalıkla görülür.\n- HRV'n ortalamanın biraz altında.\n\nBugün yoğun antrenman yerine tempolu bir yürüyüş ve erken yatış iyi gelir.",
+        highlights: [], watch: [
+          { metric: "rhr", level: "watch", reason: "Üç gecedir 4 haftalık ortalamanın (60) 6–9 bpm üstünde. Birkaç gün daha sürerse yüklenmeyi azalt." },
+          { metric: "sleep", level: "watch", reason: "Son 5 gecenin 4'ünde 6,5 saatin altında uyudun." },
+        ],
         metric_notes: {
-          steps: "Dün 9.412 adım attın; 7 günlük ortalaman 8.700. Öğleden sonraki yürüyüşün farkı yaratmış görünüyor.",
-          sleep: "6 saat 10 dakika uyudun, 28 günlük ortalaman 6 saat 50 dakika. Yatışın her zamankinden yaklaşık 45 dakika geç olmuş.",
-          hrv: "HRV 38 ms ile kendi ortalamanın (45 ms) altında. Kısa uykuyla uyumlu; tek gecelik düşüş endişe verici değil.",
-          rhr: "61 bpm, 4 haftalık ortalaman 60. Değişim anlamlı değil, toparlanman yolunda.",
+          steps: "Dün 9.412 adım attın; 7 günlük ortalaman 8.700. Öğleden sonraki yürüyüş farkı yaratmış görünüyor.",
+          rhr: "Bu gece 68 bpm; 4 haftalık ortalaman 60. 31 yaşında biri için hâlâ normal aralıkta, ama senin için belirgin bir yükseliş.",
         } },
-      { kind: "weekly", period_start: "2026-11-09", period_end: "2026-11-15", title: "Hareketli ama uykusuz bir hafta",
-        content: "Bu hafta ortalama günde 8.700 adım attın. Hafta içi uyku süren 6,5 saatin altında kaldı, hafta sonu telafi ettin.\n- Önümüzdeki hafta hedef: hafta içi yatış saatini 30 dk öne çekmek.",
-        highlights: [{ text: "Ort. 8.700 adım" }, { text: "Uyku 6,4 sa", trend: "down" }], metric_notes: {} },
+      { kind: "weekly", period_start: "2026-11-09", period_end: "2026-11-15", title: "Hareketli ama kısa uykulu bir hafta",
+        content: "Bu hafta günde ortalama 8.700 adım attın. Hafta içi uyku süren 6,5 saatin altında kaldı, hafta sonu telafi ettin.\n- Gelecek hafta için hedef: hafta içi yatış saatini 30 dakika öne çekmek.", highlights: [], watch: [], metric_notes: {} },
     ],
   };
 }
