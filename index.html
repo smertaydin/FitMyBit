@@ -21,7 +21,8 @@
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;background:var(--bg);color:var(--text);
     font:16px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
-  body{padding:calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 28px);max-width:560px;margin:0 auto}
+  body{padding:calc(var(--safe-t) + 34px) 16px calc(var(--safe-b) + 28px);max-width:560px;margin:0 auto}
+  .topshade{position:fixed;top:0;left:0;right:0;height:calc(var(--safe-t) + 26px);background:linear-gradient(var(--bg) 65%,rgba(14,17,22,0));z-index:25;pointer-events:none}
   body.locked{overflow:hidden}
   h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.01em}
   .muted{color:var(--muted)} .small{font-size:13px}
@@ -91,12 +92,16 @@
 
   /* full-screen page (metric detail, glossary) */
   .page{position:fixed;inset:0;background:var(--bg);z-index:15;overflow-y:auto;-webkit-overflow-scrolling:touch}
-  .page-in{max-width:560px;margin:0 auto;padding:calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 40px)}
+  .page-in{max-width:560px;margin:0 auto;padding:calc(var(--safe-t) + 34px) 16px calc(var(--safe-b) + 40px)}
   .back{display:flex;align-items:center;gap:6px;background:none;color:var(--muted);font-weight:600;padding:6px 0;margin-bottom:10px}
   .back svg{width:18px;height:18px;stroke:currentColor}
   .big{font-size:44px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
   .big small{font-size:18px;color:var(--muted);font-weight:600;margin-left:4px}
-  .chart{width:100%;height:150px;display:block;margin-top:8px}
+  .chartwrap{position:relative;margin-top:30px;touch-action:none;user-select:none;-webkit-user-select:none}
+  .chart{width:100%;height:150px;display:block}
+  .tip{position:absolute;top:-28px;transform:translateX(-50%);background:var(--text);color:var(--bg);font-size:13px;font-weight:700;
+    padding:3px 9px;border-radius:8px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s}
+  .tip.on{opacity:1}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
   .stat{background:var(--card2);border-radius:12px;padding:10px 8px;text-align:center}
   .stat .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
@@ -114,6 +119,7 @@
 </style>
 </head>
 <body>
+<div class="topshade"></div>
 
 <!-- LOGIN -->
 <section id="login" class="login hidden">
@@ -267,6 +273,7 @@ const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
 function valueOf(m, metrics) {
   if (!metrics) return null;
   if (m.countOnly) return metrics.count ?? 1;
+  if (m.compute) { const v = m.compute(metrics); if (v !== undefined) return v; }
   const entries = Object.entries(metrics);
   for (const re of m.keys) {
     const hit = entries.find(([k]) => re.test(k));
@@ -326,17 +333,47 @@ function bigChart(pts, m, color, mean) {
   const min = m.signed ? lo - pad : Math.max(0, lo - pad), max = hi + pad, span = max - min;
   const W = 300, H = 150, top = 8, bottom = 22, ih = H - top - bottom, n = pts.length, bw = W / n;
   const y = (v) => top + ih - ((v - min) / span) * ih;
-  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  let svg = `<div class="chartwrap" id="chartwrap"><div class="tip" id="tip"></div><svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  svg += `<line id="cursor" x1="0" x2="0" y1="${top}" y2="${top + ih}" stroke="#eef1f5" stroke-opacity=".35" stroke-width="1" visibility="hidden"/>`;
   pts.forEach((p, i) => {
     if (p.v == null) return;
     const yy = y(p.v), base = m.signed ? y(0) : top + ih;
-    svg += `<rect x="${i * bw + bw * 0.18}" y="${Math.min(yy, base)}" width="${bw * 0.64}" height="${Math.max(2, Math.abs(base - yy))}" rx="2" fill="${color}" opacity="${i === n - 1 ? 1 : .55}"/>`;
+    svg += `<rect data-i="${i}" x="${i * bw + bw * 0.18}" y="${Math.min(yy, base)}" width="${bw * 0.64}" height="${Math.max(2, Math.abs(base - yy))}" rx="2" fill="${color}" opacity="${i === n - 1 ? 1 : .55}"/>`;
   });
   if (mean != null) svg += `<line x1="0" x2="${W}" y1="${y(mean)}" y2="${y(mean)}" stroke="#eef1f5" stroke-opacity=".5" stroke-dasharray="4 4" stroke-width="1"/>`;
   [0, Math.floor(n / 2), n - 1].forEach((i) => {
     svg += `<text x="${i * bw + bw / 2}" y="${H - 6}" fill="#8b96a5" font-size="10" text-anchor="${i === 0 ? "start" : i === n - 1 ? "end" : "middle"}">${shortDay(pts[i].day)}</text>`;
   });
-  return svg + "</svg>";
+  return svg + "</svg></div>";
+}
+// Drag a finger (or mouse) across the chart to read each day's value.
+function attachScrub(pts, m) {
+  const wrap = $("chartwrap"); if (!wrap) return;
+  const tip = $("tip"), cursor = wrap.querySelector("#cursor"), rects = [...wrap.querySelectorAll("rect")];
+  const n = pts.length, W = 300; let hideT = null, lastI = -1;
+  const showAt = (clientX) => {
+    const r = wrap.getBoundingClientRect();
+    const i = Math.max(0, Math.min(n - 1, Math.floor(((clientX - r.left) / r.width) * n)));
+    if (i === lastI) return; lastI = i;
+    const p = pts[i], cx = (i + 0.5) / n;
+    cursor.setAttribute("x1", cx * W); cursor.setAttribute("x2", cx * W); cursor.setAttribute("visibility", "visible");
+    rects.forEach((el) => el.setAttribute("opacity", +el.dataset.i === i ? 1 : .3));
+    tip.textContent = `${shortDay(p.day)} · ${p.v == null ? "veri yok" : fmt(p.v, m.d, m.signed) + (m.unit ? " " + m.unit : "")}`;
+    tip.style.left = `${Math.min(Math.max(cx * r.width, 60), r.width - 60)}px`;
+    tip.classList.add("on");
+    if (navigator.vibrate) navigator.vibrate(3);
+  };
+  const reset = () => {
+    clearTimeout(hideT);
+    hideT = setTimeout(() => {
+      lastI = -1; tip.classList.remove("on"); cursor.setAttribute("visibility", "hidden");
+      rects.forEach((el) => el.setAttribute("opacity", +el.dataset.i === n - 1 ? 1 : .55));
+    }, 1800);
+  };
+  wrap.addEventListener("pointerdown", (e) => { clearTimeout(hideT); wrap.setPointerCapture(e.pointerId); showAt(e.clientX); });
+  wrap.addEventListener("pointermove", (e) => { if (e.buttons || e.pointerType !== "mouse") showAt(e.clientX); });
+  wrap.addEventListener("pointerup", reset);
+  wrap.addEventListener("pointercancel", reset);
 }
 
 /* ---------- render home ---------- */
@@ -443,7 +480,7 @@ function openMetric(id) {
       ${s.last ? `<div class="big">${fmt(s.last.v, m.d, m.signed)}<small>${m.unit}</small></div>
         <div class="small muted">Son değer · ${when}</div>${cmp}` : `<p class="empty">Bu ölçüt için henüz veri yok. Cihazın ölçmüyorsa ya da ilgili izni vermediysen burada boş kalır.</p>`}
       ${bigChart(s.s28, m, color, s.avg28)}
-      ${s.count ? `<div class="small muted" style="margin-top:2px">Son 4 hafta · kesikli çizgi = ortalaman</div>
+      ${s.count ? `<div class="small muted" style="margin-top:2px">Son 4 hafta · kesikli çizgi = ortalaman · günlere bakmak için parmağını grafikte gezdir</div>
       <div class="stats">
         <div class="stat"><div class="k">7g ort.</div><div class="v">${fmt(s.avg7, m.d, m.signed)}</div></div>
         <div class="stat"><div class="k">28g ort.</div><div class="v">${fmt(s.avg28, m.d, m.signed)}</div></div>
@@ -462,6 +499,7 @@ function openMetric(id) {
     </div>
     <p class="small muted" style="padding:0 4px">Bu açıklamalar genel bilgi amaçlıdır, tıbbi tavsiye değildir. Kaygı verici bir değişiklik fark edersen bir sağlık profesyoneline danış.</p>`;
   openPage();
+  attachScrub(s.s28, m);
 }
 function openGlossary() {
   $("sheet").classList.add("hidden");
@@ -522,16 +560,16 @@ function demoData() {
       push("steps", { "steps.countSum": r(5000, 12500) });
       push("distance", { "distance.millimetersSum": r(3500000, 9000000) });
       push("floors", { "floors.countSum": r(2, 18) });
-      push("active-zone-minutes", { "activeZoneMinutes.sumInCardioHeartZone": r(0, 50) });
+      push("active-zone-minutes", { "activeZoneMinutes.sumInPeakHeartZone": 0, "activeZoneMinutes.sumInCardioHeartZone": r(0, 20), "activeZoneMinutes.sumInFatBurnHeartZone": r(0, 30) });
       push("total-calories", { "totalCalories.kcalSum": r(2000, 2800) });
       push("sedentary-period", { "sedentaryPeriod.durationSum_s": r(25000, 40000) });
     }
-    push("sleep", { total_minutes: r(330, 480), "main.summary.minutesDeep": r(40, 100), "main.summary.minutesRem": r(60, 120) });
+    push("sleep", { total_minutes: r(330, 480), "main.summary.minutesAsleep": r(320, 460), "stages.deep_min": r(40, 100), "stages.rem_min": r(60, 120), "stages.light_min": r(180, 260), "stages.awake_min": r(10, 40) });
     push("daily-resting-heart-rate", { "dailyRestingHeartRate.beatsPerMinute": r(56, 64) });
-    push("daily-heart-rate-variability", { "dailyHeartRateVariability.averageHeartRateVariabilityMilliseconds": r(32, 58) });
+    push("daily-heart-rate-variability", { averageHeartRateVariabilityMilliseconds: r(32, 58), deepSleepRootMeanSquareOfSuccessiveDifferencesMilliseconds: r(30, 70), entropy: 3.1 });
     push("daily-respiratory-rate", { "dailyRespiratoryRate.breathsPerMinute": 14 + Math.random() * 2 });
     push("daily-oxygen-saturation", { "dailyOxygenSaturation.averagePercentage": 95 + Math.random() * 3 });
-    push("daily-sleep-temperature-derivations", { "relativeNightlyTemperature": (Math.random() - 0.5) * 1.2 });
+    push("daily-sleep-temperature-derivations", { nightlyTemperatureCelsius: 33.4 + (Math.random() - 0.5) * 1.2, baselineTemperatureCelsius: 33.4, relativeNightlyStddev30dCelsius: 0.4 });
   }
   const y = isoDay(new Date(Date.now() - 864e5));
   return {

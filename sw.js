@@ -1,5 +1,5 @@
 // FitMyBit service worker: caches the app shell only. API calls always go to the network.
-const CACHE = "fitmybit-v2";
+const CACHE = "fitmybit-v3";
 const SHELL = ["./", "./index.html", "./manifest.webmanifest", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "./metrics.js", "./privacy.html"];
 
 self.addEventListener("install", (e) => {

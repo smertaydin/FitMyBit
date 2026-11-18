@@ -64,6 +64,7 @@ window.FMB_METRICS = [
   {
     id: "azm", label: "Aktif bölge dakikası", group: "activity", type: "active-zone-minutes", unit: "dk", d: 0, core: true, higher: "good",
     keys: [/total/i, /sum/i, /minutes/i, /_s$/, /.*/], conv: secToMin,
+    compute: (m) => { const z = Object.entries(m).filter(([k]) => /sumIn\w*Zone/i.test(k)); return z.length ? z.reduce((a, [, v]) => a + v, 0) : undefined; },
     info: {
       what: "Kalbini 'çalıştırdığın' dakikaların sayısı. Fitbit/Google'ın, nabzına göre efor süresini ölçen metriği.",
       how: "Nabzın yağ yakım bölgesindeyken her dakika 1, kardiyo veya zirve bölgesindeyken her dakika 2 puan sayılır. Bölgeler yaşına ve dinlenme nabzına göre kişisel hesaplanır.",
@@ -156,7 +157,7 @@ window.FMB_METRICS = [
   },
   {
     id: "sleep_deep", label: "Derin uyku", group: "sleep", type: "sleep", unit: "dk", d: 0, higher: "good",
-    keys: [/deep.*(_s|min)/i, /deep/i], conv: secToMin,
+    keys: [/stages\.deep_min/],
     info: {
       what: "Vücudun fiziksel olarak en çok toparlandığı evre: kas onarımı, bağışıklık ve büyüme hormonu salgısı bu evrede yoğunlaşır.",
       how: "Nabzın en düşük ve en düzenli olduğu, neredeyse hiç hareket olmayan dönemler derin uyku olarak tahmin edilir.",
@@ -169,7 +170,7 @@ window.FMB_METRICS = [
   },
   {
     id: "sleep_rem", label: "REM uykusu", group: "sleep", type: "sleep", unit: "dk", d: 0, higher: "good",
-    keys: [/rem.*(_s|min)/i, /rem/i], conv: secToMin,
+    keys: [/stages\.rem_min/],
     info: {
       what: "Rüyaların çoğunun görüldüğü evre. Hafıza, öğrenme ve duygusal denge için önemlidir.",
       how: "Nabzın ve solunumun düzensizleştiği ama vücudun hareketsiz kaldığı dönemlerden tahmin edilir.",
@@ -178,6 +179,32 @@ window.FMB_METRICS = [
       down: "Kısa uyku (özellikle erken kalkış) ve alkol REM'i en çok kısan etkenlerdir.",
       affects: "Uyku süresi, alkol, bazı ilaçlar, stres.",
       tip: "REM gecenin sonuna yığıldığı için, alarmı 30 dk erkene kurmak en çok REM'den çalar.",
+    },
+  },
+  {
+    id: "sleep_light", label: "Hafif uyku", group: "sleep", type: "sleep", unit: "dk", d: 0, higher: "neutral",
+    keys: [/stages\.light_min/],
+    info: {
+      what: "Uykunun en büyük bölümünü oluşturan geçiş evresi. Vücut gevşer, nabız ve vücut ısısı düşer; hafıza pekiştirme burada da sürer.",
+      how: "Hareketin az olduğu ama nabzın derin uykudaki kadar düşmediği dönemlerden tahmin edilir.",
+      range: "Toplam uykunun yaklaşık %50–60'ı; çoğu yetişkinde gecede 3–4,5 saat.",
+      up: "Uzun bir gecenin doğal sonucu olabilir; tek başına iyi ya da kötü değildir.",
+      down: "Kısa uykuda hafif uyku da azalır.",
+      affects: "Toplam uyku süresi, gürültü, ışık.",
+      tip: "Hafif uyku kötü uyku demek değildir; asıl derin ve REM uykusunun yeterli olup olmadığına bak.",
+    },
+  },
+  {
+    id: "sleep_awake", label: "Uykuda uyanık kalma", group: "sleep", type: "sleep", unit: "dk", d: 0, higher: "bad",
+    keys: [/stages\.awake_min/, /minutesAwake/i],
+    info: {
+      what: "Gece boyunca kısa uyanmalarda geçen toplam süre. Çoğunu sabah hatırlamazsın.",
+      how: "Hareketin ve nabzın kısa süreliğine uyanıklık düzeyine çıktığı anlar toplanır.",
+      range: "Gecede 10–30 dakika ve birkaç kısa uyanma tamamen normaldir.",
+      up: "Bölünmüş uyku: gürültü, sıcak oda, geç alkol/kafein, stres veya tuvalet ihtiyacı.",
+      down: "Daha kesintisiz bir gece.",
+      affects: "Oda sıcaklığı, alkol, kafein, stres, partner veya evcil hayvan, geç sıvı tüketimi.",
+      tip: "Yatmadan 2–3 saat önce alkol ve bol sıvıyı kesmek gece uyanmalarını azaltır.",
     },
   },
   {
@@ -208,7 +235,8 @@ window.FMB_METRICS = [
   },
   {
     id: "skin_temp", label: "Cilt sıcaklığı değişimi", group: "sleep", type: "daily-sleep-temperature-derivations", unit: "°C", d: 1, signed: true, higher: "neutral",
-    keys: [/relative|deviation|delta|diff/i, /.*/],
+    keys: [/relativeNightly(?!Stddev)/i, /deviation|delta|diff/i],
+    compute: (m) => (m.nightlyTemperatureCelsius != null && m.baselineTemperatureCelsius != null ? m.nightlyTemperatureCelsius - m.baselineTemperatureCelsius : undefined),
     info: {
       what: "Uyurken ölçülen cilt sıcaklığının, senin kişisel ortalamandan ne kadar saptığı. Mutlak sıcaklık değil, farktır.",
       how: "Saatin sıcaklık sensörü gece boyunca ölçüm yapar; son haftalardaki ortalamanla karşılaştırılır.",
@@ -236,7 +264,7 @@ window.FMB_METRICS = [
   },
   {
     id: "hrv", label: "Kalp atış hızı değişkenliği (HRV)", group: "heart", type: "daily-heart-rate-variability", unit: "ms", d: 0, core: true, higher: "good",
-    keys: [/rmssd/i, /average.*mill/i, /millis/i, /avg|average/i, /.*/],
+    keys: [/averageHeartRateVariability/i, /rmssd|rootMeanSquare/i, /millis/i, /.*/],
     info: {
       what: "Ardışık kalp atışları arasındaki sürenin ne kadar değiştiği. Kalp metronom gibi atmaz; atışlar arası sürenin esnek olması, sinir sisteminin 'dinlen ve toparlan' modunda olduğunu gösterir.",
       how: "Derin uyku sırasında atımlar arası süreler milisaniye hassasiyetle ölçülür ve RMSSD denen yöntemle tek bir değere çevrilir.",
@@ -262,7 +290,7 @@ window.FMB_METRICS = [
   },
   {
     id: "vo2max", label: "Kardiyo kondisyonu (VO₂ max)", group: "heart", type: "daily-vo2-max", unit: "ml/kg/dk", d: 0, higher: "good",
-    keys: [/vo2/i, /avg|average|value/i, /.*/],
+    keys: [/^vo2Max$/i, /vo2max(?!cov)/i, /.*/],
     info: {
       what: "Vücudunun eforda kullanabildiği en yüksek oksijen miktarının tahmini. Genel kondisyonun ve uzun vadeli sağlığın güçlü bir göstergesi.",
       how: "Dinlenme nabzın, yaşın, kilon ve özellikle GPS'li koşu/yürüyüşlerdeki hız-nabız ilişkinden tahmin edilir.",
