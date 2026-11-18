@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FitMyBit</title>
+<meta name="theme-color" content="#0e1116">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FitMyBit">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root{
+    --bg:#0e1116; --card:#161b22; --card2:#1c232c; --line:#262e38;
+    --text:#eef1f5; --muted:#8b96a5; --accent:#ff6a3d; --accent2:#4fd1b5; --warn:#f5b84b;
+    --r:18px; --safe-t:env(safe-area-inset-top); --safe-b:env(safe-area-inset-bottom);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--text);
+    font:16px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
+  body{padding:calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 28px);max-width:560px;margin:0 auto}
+  h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.01em}
+  .muted{color:var(--muted)} .small{font-size:13px}
+  button{font:inherit;color:inherit;border:0;cursor:pointer}
+  .hidden{display:none!important}
+
+  /* header */
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand img{width:34px;height:34px;border-radius:10px}
+  .brand h1{font-size:22px}
+  .brand h1 b{color:var(--accent)}
+  .iconbtn{width:38px;height:38px;border-radius:12px;background:var(--card);display:grid;place-items:center}
+  .iconbtn svg{width:20px;height:20px;stroke:var(--muted)}
+
+  /* login */
+  .login{min-height:80vh;display:flex;flex-direction:column;justify-content:center;gap:22px;text-align:center}
+  .login img{width:96px;height:96px;border-radius:26px;margin:0 auto}
+  .login h1{font-size:34px} .login h1 b{color:var(--accent)}
+  .gbtn{display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;
+    padding:14px 18px;border-radius:14px;font-weight:600;width:100%}
+  .gbtn svg{width:20px;height:20px}
+  .note{background:var(--card);border-radius:var(--r);padding:14px 16px;text-align:left;font-size:14px;color:var(--muted)}
+
+  /* cards */
+  .card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:14px}
+  .card h2{font-size:17px}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+  .eyebrow.teal{color:var(--accent2)}
+  .insight{font-size:15.5px;line-height:1.6}
+  .insight p{margin:10px 0 0} .insight ul{margin:8px 0 0;padding-left:20px} .insight li{margin:4px 0}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .chip{background:var(--card2);border:1px solid var(--line);padding:5px 10px;border-radius:999px;font-size:13px}
+  .chip.up{border-color:#2f6b5d;color:#8ff0d8} .chip.down{border-color:#7a3a2a;color:#ffb39c}
+  .empty{color:var(--muted);font-size:15px}
+
+  /* metrics */
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+  .tile{background:var(--card);border-radius:16px;padding:14px}
+  .tile .lbl{font-size:13px;color:var(--muted)}
+  .tile .val{font-size:24px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .tile .val small{font-size:13px;color:var(--muted);font-weight:500;margin-left:3px}
+  .tile .delta{font-size:12px;margin-top:2px;color:var(--muted)}
+  .tile svg{display:block;width:100%;height:34px;margin-top:8px}
+
+  .seg{display:flex;background:var(--card);border-radius:12px;padding:4px;margin:4px 0 14px}
+  .seg button{flex:1;padding:8px;border-radius:9px;background:none;color:var(--muted);font-weight:600;font-size:14px}
+  .seg button.on{background:var(--card2);color:var(--text)}
+
+  details.past{background:var(--card);border-radius:14px;padding:12px 16px;margin-bottom:8px}
+  details.past summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-weight:600;font-size:15px}
+  details.past summary::-webkit-details-marker{display:none}
+  details.past .insight{margin-top:6px}
+
+  .status{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:-6px 0 14px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2)} .dot.warn{background:var(--warn)}
+  .banner{background:#2a2110;border:1px solid #5a4415;color:#ffd78a;border-radius:14px;padding:12px 14px;font-size:14px;margin-bottom:14px}
+  .banner button{background:var(--warn);color:#1a1205;border-radius:10px;padding:6px 12px;font-weight:600;margin-top:8px}
+
+  /* sheet */
+  .sheet-bg{position:fixed;inset:0;background:#0009;display:flex;align-items:flex-end;justify-content:center;z-index:10}
+  .sheet{background:var(--card);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:18px 16px calc(var(--safe-b) + 18px)}
+  .sheet .row{display:block;width:100%;text-align:left;padding:14px;border-radius:12px;background:var(--card2);margin-top:8px;font-weight:600}
+  .sheet .row.danger{color:#ff8a7a}
+  .toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + 20px);transform:translateX(-50%);background:var(--card2);
+    border:1px solid var(--line);padding:10px 16px;border-radius:12px;font-size:14px;z-index:20}
+  .spin{animation:spin 1s linear infinite} @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<section id="login" class="login hidden">
+  <img src="icon-512.png" alt="">
+  <div>
+    <h1>FitMy<b>Bit</b></h1>
+    <p class="muted">Google Health verilerin her sabah yorumlanır.<br>Ekran görüntüsü yok, uğraş yok.</p>
+  </div>
+  <button class="gbtn" id="loginBtn">
+    <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
+    Google ile bağlan
+  </button>
+  <div class="note">
+    <b style="color:var(--text)">Bilmen gerekenler</b><br>
+    • Google "Bu uygulama doğrulanmadı" uyarısı gösterecek: <i>Gelişmiş → FitMyBit'e git</i> diyerek devam et.<br>
+    • Sağlık verilerin yalnızca okunur. Yorumlar Claude tarafından üretilir, tıbbi tavsiye değildir.<br>
+    • Ayarlar'dan istediğin an hesabını ve tüm verilerini silebilirsin.
+  </div>
+  <p id="loginErr" class="small" style="color:#ff8a7a"></p>
+</section>
+
+<!-- APP -->
+<section id="app" class="hidden">
+  <div class="top">
+    <div class="brand"><img src="icon-192.png" alt=""><h1>FitMy<b>Bit</b></h1></div>
+    <button class="iconbtn" id="menuBtn" aria-label="Ayarlar">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+    </button>
+  </div>
+  <div class="status" id="status"></div>
+  <div id="banner"></div>
+
+  <div class="card" id="dailyCard"></div>
+  <div class="grid" id="tiles"></div>
+  <div class="card" id="weeklyCard"></div>
+
+  <h3 style="font-size:15px;margin:22px 4px 10px" class="muted">Geçmiş yorumlar</h3>
+  <div class="seg" id="seg"><button data-k="daily" class="on">Günlük</button><button data-k="weekly">Haftalık</button></div>
+  <div id="past"></div>
+</section>
+
+<div id="sheet" class="sheet-bg hidden">
+  <div class="sheet">
+    <div class="small muted" id="who"></div>
+    <button class="row" id="syncBtn">Verileri şimdi yenile</button>
+    <button class="row" id="installBtn">Ana ekrana nasıl eklerim?</button>
+    <button class="row" id="logoutBtn">Çıkış yap</button>
+    <button class="row danger" id="deleteBtn">Hesabımı ve tüm verilerimi sil</button>
+    <button class="row" id="closeSheet" style="text-align:center;background:none">Kapat</button>
+  </div>
+</div>
+
+<script>
+const API = "https://orzooypcvqtcmmbxoloc.supabase.co/functions/v1";
+const APP_URL = location.origin + location.pathname;
+const TOKEN_KEY = "fmb_token";
+const DEMO = new URLSearchParams(location.search).has("demo");
+const $ = (id) => document.getElementById(id);
+let state = { data: null, pastKind: "daily" };
+
+/* ---------- auth ---------- */
+(function readHash() {
+  const h = new URLSearchParams(location.hash.slice(1));
+  if (h.get("token")) localStorage.setItem(TOKEN_KEY, h.get("token"));
+  if (h.get("error")) $("loginErr").textContent = errText(h.get("error"));
+  if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+})();
+function errText(e) {
+  return ({ access_denied: "Google izni verilmedi.", server_missing_client_secret: "Sunucu ayarı eksik (client secret).",
+    token_exchange_failed: "Google girişi tamamlanamadı, tekrar dene.", state_expired: "Giriş süresi doldu, tekrar dene." })[e]
+    || "Giriş sırasında hata: " + e;
+}
+const token = () => localStorage.getItem(TOKEN_KEY);
+$("loginBtn").onclick = () => {
+  location.href = `${API}/gh-oauth-callback?start=1&return=${encodeURIComponent(APP_URL)}`;
+};
+
+async function api(action, method = "GET", params = "") {
+  const r = await fetch(`${API}/gh-api?action=${action}${params}`, {
+    method, headers: { Authorization: `Bearer ${token()}` },
+  });
+  if (r.status === 401) { localStorage.removeItem(TOKEN_KEY); show("login"); throw new Error("unauthorized"); }
+  return r.json();
+}
+
+/* ---------- helpers ---------- */
+const fmt = (n, d = 0) => n == null || isNaN(n) ? "–" : Number(n).toLocaleString("tr-TR", { maximumFractionDigits: d, minimumFractionDigits: d });
+const dayLabel = (d) => new Date(d + "T12:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
+const shortDay = (d) => new Date(d + "T12:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
+function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+function md(s) {
+  // tiny markdown: paragraphs, "- " bullets, **bold**
+  const inline = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  const out = []; let list = null;
+  for (const raw of String(s || "").split("\n")) {
+    const line = raw.trim();
+    if (/^[-•*] /.test(line)) { if (!list) { list = []; } list.push(`<li>${inline(line.slice(2))}</li>`); continue; }
+    if (list) { out.push(`<ul>${list.join("")}</ul>`); list = null; }
+    if (line.startsWith("#")) out.push(`<p><b>${inline(line.replace(/^#+\s*/, ""))}</b></p>`);
+    else if (line) out.push(`<p>${inline(line)}</p>`);
+  }
+  if (list) out.push(`<ul>${list.join("")}</ul>`);
+  return out.join("");
+}
+function toast(msg) {
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
+}
+function show(which) { $("login").classList.toggle("hidden", which !== "login"); $("app").classList.toggle("hidden", which !== "app"); }
+
+/* ---------- metrics: pick values out of flattened API metrics ---------- */
+// Each metric: data_type + ordered key regexes. Field names are matched loosely because
+// the Google Health API returns nested objects (e.g. "steps.countSum").
+const METRICS = [
+  { id: "steps", label: "Adım", type: "steps", keys: [/countsum/i, /count/i], unit: "", d: 0 },
+  { id: "sleep", label: "Uyku", type: "sleep", keys: [/asleep.*min/i, /minutesasleep/i, /^total_minutes$/], unit: "sa", d: 1, map: (m) => m / 60 },
+  { id: "rhr", label: "Dinlenme nabzı", type: "daily-resting-heart-rate", keys: [/beatsperminute/i, /bpm/i, /.*/], unit: "bpm", d: 0, lowerBetter: true },
+  { id: "hrv", label: "HRV", type: "daily-heart-rate-variability", keys: [/rmssd/i, /average.*mill/i, /millis/i, /.*/], unit: "ms", d: 0 },
+  { id: "azm", label: "Aktif bölge dk.", type: "active-zone-minutes", keys: [/sum/i, /minutes/i, /.*/], unit: "dk", d: 0 },
+  { id: "kcal", label: "Kalori", type: "total-calories", keys: [/kcal/i, /sum/i, /.*/], unit: "kcal", d: 0 },
+];
+function pick(metrics, keys) {
+  const entries = Object.entries(metrics || {});
+  for (const re of keys) { const hit = entries.find(([k]) => re.test(k)); if (hit) return hit[1]; }
+  return null;
+}
+function series(daily, m, days = 14) {
+  const byDay = {};
+  for (const r of daily) if (r.data_type === m.type) {
+    let v = pick(r.metrics, m.keys); if (v != null && m.map) v = m.map(v); byDay[r.day] = v;
+  }
+  const out = []; const today = new Date();
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today); d.setDate(d.getDate() - i);
+    const k = d.toLocaleDateString("en-CA"); out.push({ day: k, v: byDay[k] ?? null });
+  }
+  return out;
+}
+function spark(pts, color) {
+  const vals = pts.map((p) => p.v).filter((v) => v != null);
+  if (vals.length < 2) return "";
+  const min = Math.min(...vals), max = Math.max(...vals), span = max - min || 1;
+  const w = 100, h = 34, step = w / (pts.length - 1);
+  const bars = pts.map((p, i) => p.v == null ? "" :
+    `<rect x="${i * step - 2}" y="${h - 4 - ((p.v - min) / span) * (h - 8)}" width="4" height="${4 + ((p.v - min) / span) * (h - 8)}" rx="2" fill="${color}" opacity="${i === pts.length - 1 ? 1 : .45}"/>`).join("");
+  return `<svg viewBox="-3 0 106 ${h}" preserveAspectRatio="none">${bars}</svg>`;
+}
+
+/* ---------- render ---------- */
+function render() {
+  const { user, daily, insights } = state.data;
+  // status
+  const synced = user.last_sync_at ? new Date(user.last_sync_at).toLocaleString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : null;
+  $("status").innerHTML = synced
+    ? `<span class="dot${user.sync_error ? " warn" : ""}"></span> Son senkron: ${synced}`
+    : `<span class="dot warn"></span> İlk senkron sürüyor, birkaç dakika içinde veriler gelecek.`;
+  $("who").textContent = user.email ? `${user.display_name || ""} · ${user.email}` : "";
+  $("banner").innerHTML = user.needs_reauth
+    ? `<div class="banner">Google bağlantının süresi dolmuş, verilerin güncellenemiyor.<br><button onclick="document.getElementById('loginBtn').click()">Yeniden bağlan</button></div>` : "";
+
+  // daily insight
+  const daily1 = insights.find((i) => i.kind === "daily");
+  $("dailyCard").innerHTML = daily1
+    ? `<div class="eyebrow">Günün yorumu · ${dayLabel(daily1.period_start)}</div>
+       ${daily1.title ? `<h2>${esc(daily1.title)}</h2>` : ""}
+       <div class="insight">${md(daily1.content)}</div>${chips(daily1.highlights)}`
+    : `<div class="eyebrow">Günün yorumu</div><p class="empty">İlk yorumun yarın sabah burada olacak. Verilerin toplanmaya başladı.</p>`;
+
+  // tiles
+  $("tiles").innerHTML = METRICS.map((m) => {
+    const s = series(daily, m);
+    const last = [...s].reverse().find((p) => p.v != null);
+    const prev = s.slice(0, -1).map((p) => p.v).filter((v) => v != null);
+    const avg = prev.length ? prev.reduce((a, b) => a + b, 0) / prev.length : null;
+    let delta = "";
+    if (last && avg != null) {
+      const diff = last.v - avg; const pct = avg ? Math.round((diff / avg) * 100) : 0;
+      delta = `${pct > 0 ? "+" : ""}${pct}% · 14g ort. ${fmt(avg, m.d)}`;
+    }
+    return `<div class="tile"><div class="lbl">${m.label}</div>
+      <div class="val">${last ? fmt(last.v, m.d) : "–"}<small>${last ? m.unit : ""}</small></div>
+      <div class="delta">${last ? (last.day === s[s.length - 1].day ? "Bugün" : shortDay(last.day)) + (delta ? " · " + delta : "") : "Veri yok"}</div>
+      ${spark(s, m.id === "sleep" || m.id === "hrv" ? "var(--accent2)" : "var(--accent)")}</div>`;
+  }).join("");
+
+  // weekly
+  const w = insights.find((i) => i.kind === "weekly");
+  $("weeklyCard").innerHTML = w
+    ? `<div class="eyebrow teal">Haftanın özeti · ${shortDay(w.period_start)} – ${shortDay(w.period_end)}</div>
+       ${w.title ? `<h2>${esc(w.title)}</h2>` : ""}<div class="insight">${md(w.content)}</div>${chips(w.highlights)}`
+    : `<div class="eyebrow teal">Haftanın özeti</div><p class="empty">Haftalık özet her pazartesi sabahı gelir.</p>`;
+
+  renderPast();
+}
+function chips(h) {
+  if (!Array.isArray(h) || !h.length) return "";
+  return `<div class="chips">${h.map((c) => {
+    const o = typeof c === "string" ? { text: c } : c;
+    return `<span class="chip ${o.trend === "up" ? "up" : o.trend === "down" ? "down" : ""}">${esc(o.text || o.label || "")}</span>`;
+  }).join("")}</div>`;
+}
+function renderPast() {
+  const list = state.data.insights.filter((i) => i.kind === state.pastKind).slice(1);
+  $("past").innerHTML = list.length ? list.map((i) => `<details class="past"><summary>
+      <span>${esc(i.title || (i.kind === "daily" ? dayLabel(i.period_start) : "Hafta"))}</span>
+      <span class="muted small">${i.kind === "daily" ? shortDay(i.period_start) : shortDay(i.period_start) + "–" + shortDay(i.period_end)}</span>
+    </summary><div class="insight">${md(i.content)}</div></details>`).join("")
+    : `<p class="empty" style="padding:0 4px">Henüz geçmiş yorum yok.</p>`;
+}
+$("seg").onclick = (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  state.pastKind = b.dataset.k;
+  [...$("seg").children].forEach((x) => x.classList.toggle("on", x === b));
+  renderPast();
+};
+
+/* ---------- menu ---------- */
+$("menuBtn").onclick = () => $("sheet").classList.remove("hidden");
+$("closeSheet").onclick = () => $("sheet").classList.add("hidden");
+$("sheet").onclick = (e) => { if (e.target.id === "sheet") $("sheet").classList.add("hidden"); };
+$("syncBtn").onclick = async () => {
+  $("sheet").classList.add("hidden"); toast("Veriler yenileniyor…");
+  try {
+    const r = await api("sync", "POST");
+    toast(r.skipped ? "Az önce yenilendi, birazdan tekrar dene." : "Veriler güncellendi.");
+    await load();
+  } catch { toast("Yenileme başarısız."); }
+};
+$("installBtn").onclick = () => {
+  $("sheet").classList.add("hidden");
+  alert("iPhone: Safari'de Paylaş simgesi → 'Ana Ekrana Ekle'.\nAndroid: Chrome menüsü (⋮) → 'Ana ekrana ekle'.");
+};
+$("logoutBtn").onclick = async () => {
+  try { await api("logout", "POST"); } catch {}
+  localStorage.removeItem(TOKEN_KEY); $("sheet").classList.add("hidden"); show("login");
+};
+$("deleteBtn").onclick = async () => {
+  if (!confirm("Hesabın, tüm sağlık verilerin ve yorumların kalıcı olarak silinecek. Emin misin?")) return;
+  try { await api("delete_account", "POST"); } catch {}
+  localStorage.removeItem(TOKEN_KEY); $("sheet").classList.add("hidden"); show("login"); toast("Hesabın silindi.");
+};
+
+/* ---------- boot ---------- */
+async function load() {
+  if (DEMO) { state.data = demoData(); render(); show("app"); return; }
+  if (!token()) { show("login"); return; }
+  try { state.data = await api("dashboard", "GET", "&days=35"); render(); show("app"); }
+  catch (e) { if (e.message !== "unauthorized") { show("app"); $("status").textContent = "Bağlantı hatası, tekrar dene."; } }
+}
+function demoData() {
+  const daily = []; const t = new Date();
+  for (let i = 20; i >= 0; i--) {
+    const d = new Date(t); d.setDate(d.getDate() - i); const k = d.toLocaleDateString("en-CA");
+    daily.push({ day: k, data_type: "steps", metrics: { "steps.countSum": 6000 + Math.round(Math.random() * 6000) } });
+    daily.push({ day: k, data_type: "sleep", metrics: { total_minutes: 360 + Math.round(Math.random() * 120) } });
+    daily.push({ day: k, data_type: "daily-resting-heart-rate", metrics: { beatsPerMinute: 58 + Math.round(Math.random() * 6) } });
+    daily.push({ day: k, data_type: "daily-heart-rate-variability", metrics: { averageHeartRateVariabilityMilliseconds: 35 + Math.round(Math.random() * 20) } });
+    daily.push({ day: k, data_type: "active-zone-minutes", metrics: { "activeZoneMinutes.sum": Math.round(Math.random() * 60) } });
+    daily.push({ day: k, data_type: "total-calories", metrics: { "totalCalories.kcalSum": 2100 + Math.round(Math.random() * 600) } });
+  }
+  const y = new Date(t); y.setDate(y.getDate() - 1);
+  return {
+    user: { email: "demo@example.com", display_name: "Demo", last_sync_at: new Date().toISOString() },
+    daily,
+    insights: [
+      { kind: "daily", period_start: y.toLocaleDateString("en-CA"), period_end: y.toLocaleDateString("en-CA"), title: "Toparlanma günü gibi duruyor",
+        content: "Dün **9.412 adım** attın, 14 günlük ortalamanın biraz üstünde. Uykun ise 6 saat 10 dakikada kaldı.\n- Dinlenme nabzın 61 bpm ile normal aralığında.\n- HRV ortalamanın altında; bugün yoğun antrenman yerine hafif tempo daha iyi olabilir.",
+        highlights: [{ text: "Adım +8%", trend: "up" }, { text: "Uyku −12%", trend: "down" }, { text: "Nabız stabil" }] },
+      { kind: "weekly", period_start: "2026-11-09", period_end: "2026-11-15", title: "Hareketli ama uykusuz bir hafta",
+        content: "Bu hafta ortalama günde 8.700 adım attın. Hafta içi uyku süren 6,5 saatin altında kaldı, hafta sonu telafi ettin.\n- Önümüzdeki hafta hedef: hafta içi yatış saatini 30 dk öne çekmek.",
+        highlights: [{ text: "Ort. 8.700 adım" }, { text: "Uyku 6,4 sa", trend: "down" }] },
+    ],
+  };
+}
+if ("serviceWorker" in navigator && !DEMO) navigator.serviceWorker.register("sw.js");
+load();
+</script>
+</body>
+</html>
