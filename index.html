@@ -183,9 +183,11 @@ const $ = (id) => document.getElementById(id);
 let state = { data: null, pastKind: "daily" };
 
 /* ---------- auth ---------- */
+let handoffNotice = false;
 (function readHash() {
   const h = new URLSearchParams(location.hash.slice(1));
   if (h.get("token")) localStorage.setItem(TOKEN_KEY, h.get("token"));
+  if (h.get("handoff")) handoffNotice = true;
   if (h.get("error")) $("loginErr").textContent = errText(h.get("error"));
   if (location.hash) history.replaceState(null, "", location.pathname + location.search);
 })();
@@ -195,7 +197,38 @@ function errText(e) {
     || "Giriş sırasında hata: " + e;
 }
 const token = () => localStorage.getItem(TOKEN_KEY);
-$("loginBtn").onclick = () => { location.href = `${API}/gh-oauth-callback?start=1&return=${encodeURIComponent(APP_URL)}`; };
+const STANDALONE = window.navigator.standalone === true || matchMedia("(display-mode: standalone)").matches;
+const authUrl = (extra = "") => `${API}/gh-oauth-callback?start=1&return=${encodeURIComponent(APP_URL)}${extra}`;
+let pollTimer = null;
+$("loginBtn").onclick = () => {
+  if (!STANDALONE) { location.href = authUrl(); return; }
+  // Home-screen app: Google sign-in can't finish inside the app's embedded browser and the app
+  // doesn't share storage with Safari. Sign in in Safari, then claim the session here.
+  const nonce = Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) => b.toString(16).padStart(2, "0")).join("");
+  localStorage.setItem("fmb_nonce", JSON.stringify({ nonce, t: Date.now() }));
+  window.open(authUrl(`&handoff=${nonce}`), "_blank");
+  startClaimPolling();
+};
+function startClaimPolling() {
+  const saved = JSON.parse(localStorage.getItem("fmb_nonce") || "null");
+  if (!saved || Date.now() - saved.t > 10 * 60 * 1000) { localStorage.removeItem("fmb_nonce"); return; }
+  $("loginErr").style.color = "var(--muted)";
+  $("loginErr").textContent = "Girişi Safari'de tamamla, sonra bu uygulamaya geri dön. Bekleniyor…";
+  const tick = async () => {
+    try {
+      const r = await fetch(`${API}/gh-api?action=claim`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ nonce: saved.nonce }) });
+      const b = await r.json();
+      if (b.token) {
+        clearInterval(pollTimer); localStorage.removeItem("fmb_nonce"); localStorage.setItem(TOKEN_KEY, b.token);
+        $("loginErr").textContent = ""; load(); return;
+      }
+      if (b.error) { clearInterval(pollTimer); localStorage.removeItem("fmb_nonce"); $("loginErr").style.color = "var(--bad)"; $("loginErr").textContent = "Giriş süresi doldu, tekrar dene."; }
+    } catch {}
+    if (Date.now() - saved.t > 10 * 60 * 1000) { clearInterval(pollTimer); localStorage.removeItem("fmb_nonce"); }
+  };
+  clearInterval(pollTimer); pollTimer = setInterval(tick, 2500); tick();
+}
+document.addEventListener("visibilitychange", () => { if (!document.hidden && !token() && localStorage.getItem("fmb_nonce")) startClaimPolling(); });
 
 async function api(action, method = "GET", params = "") {
   const r = await fetch(`${API}/gh-api?action=${action}${params}`, { method, headers: { Authorization: `Bearer ${token()}` } });
@@ -473,8 +506,11 @@ $("deleteBtn").onclick = async () => {
 /* ---------- boot ---------- */
 async function load() {
   if (DEMO) { state.data = demoData(); render(); show("app"); return; }
-  if (!token()) { show("login"); return; }
-  try { state.data = await api("dashboard", "GET", "&days=35"); render(); show("app"); }
+  if (!token()) { show("login"); if (localStorage.getItem("fmb_nonce")) startClaimPolling(); return; }
+  try {
+    state.data = await api("dashboard", "GET", "&days=35"); render(); show("app");
+    if (handoffNotice) { handoffNotice = false; $("banner").insertAdjacentHTML("afterbegin", `<div class="banner" style="background:#10261f;border-color:#1f5a4a;color:#9ff0d8">Giriş tamamlandı ✓ Ana ekrandaki FitMyBit uygulamasına geri dönebilirsin; orada da otomatik olarak açılacak.</div>`); }
+  }
   catch (e) { if (e.message !== "unauthorized") { show("app"); $("status").textContent = "Bağlantı hatası, tekrar dene."; } }
 }
 function demoData() {
