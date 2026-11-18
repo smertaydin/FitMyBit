@@ -15,28 +15,26 @@
 <style>
   :root{
     --bg:#0e1116; --card:#161b22; --card2:#1c232c; --line:#262e38;
-    --text:#eef1f5; --muted:#8b96a5; --accent:#ff6a3d; --accent2:#4fd1b5; --warn:#f5b84b;
+    --text:#eef1f5; --muted:#8b96a5; --accent:#ff6a3d; --accent2:#4fd1b5; --warn:#f5b84b; --bad:#ff8a7a;
     --r:18px; --safe-t:env(safe-area-inset-top); --safe-b:env(safe-area-inset-bottom);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;background:var(--bg);color:var(--text);
     font:16px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif}
   body{padding:calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 28px);max-width:560px;margin:0 auto}
+  body.locked{overflow:hidden}
   h1,h2,h3{margin:0;font-weight:700;letter-spacing:-.01em}
   .muted{color:var(--muted)} .small{font-size:13px}
   button{font:inherit;color:inherit;border:0;cursor:pointer}
   .hidden{display:none!important}
 
-  /* header */
   .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
   .brand{display:flex;align-items:center;gap:10px}
   .brand img{width:34px;height:34px;border-radius:10px}
-  .brand h1{font-size:22px}
-  .brand h1 b{color:var(--accent)}
+  .brand h1{font-size:22px} .brand h1 b{color:var(--accent)}
   .iconbtn{width:38px;height:38px;border-radius:12px;background:var(--card);display:grid;place-items:center}
   .iconbtn svg{width:20px;height:20px;stroke:var(--muted)}
 
-  /* login */
   .login{min-height:80vh;display:flex;flex-direction:column;justify-content:center;gap:22px;text-align:center}
   .login img{width:96px;height:96px;border-radius:26px;margin:0 auto}
   .login h1{font-size:34px} .login h1 b{color:var(--accent)}
@@ -44,8 +42,8 @@
     padding:14px 18px;border-radius:14px;font-weight:600;width:100%}
   .gbtn svg{width:20px;height:20px}
   .note{background:var(--card);border-radius:var(--r);padding:14px 16px;text-align:left;font-size:14px;color:var(--muted)}
+  .note a{color:var(--muted)}
 
-  /* cards */
   .card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:14px}
   .card h2{font-size:17px}
   .eyebrow{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
@@ -57,19 +55,23 @@
   .chip.up{border-color:#2f6b5d;color:#8ff0d8} .chip.down{border-color:#7a3a2a;color:#ffb39c}
   .empty{color:var(--muted);font-size:15px}
 
-  /* metrics */
-  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-  .tile{background:var(--card);border-radius:16px;padding:14px}
-  .tile .lbl{font-size:13px;color:var(--muted)}
-  .tile .val{font-size:24px;font-weight:700;margin-top:2px;font-variant-numeric:tabular-nums}
+  .grouph{display:flex;justify-content:space-between;align-items:baseline;margin:20px 4px 10px}
+  .grouph h3{font-size:15px;color:var(--muted)}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .tile{background:var(--card);border-radius:16px;padding:14px;text-align:left;width:100%;position:relative}
+  .tile:active{background:var(--card2)}
+  .tile .lbl{font-size:13px;color:var(--muted);padding-right:16px;line-height:1.3}
+  .tile .val{font-size:24px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
   .tile .val small{font-size:13px;color:var(--muted);font-weight:500;margin-left:3px}
   .tile .delta{font-size:12px;margin-top:2px;color:var(--muted)}
+  .tile .delta .g{color:var(--accent2)} .tile .delta .b{color:var(--bad)}
   .tile svg{display:block;width:100%;height:34px;margin-top:8px}
+  .tile .chev{position:absolute;top:13px;right:12px;color:var(--muted);font-size:15px}
+  .tile .dot2{position:absolute;top:16px;right:28px;width:7px;height:7px;border-radius:50%;background:var(--accent)}
 
   .seg{display:flex;background:var(--card);border-radius:12px;padding:4px;margin:4px 0 14px}
   .seg button{flex:1;padding:8px;border-radius:9px;background:none;color:var(--muted);font-weight:600;font-size:14px}
   .seg button.on{background:var(--card2);color:var(--text)}
-
   details.past{background:var(--card);border-radius:14px;padding:12px 16px;margin-bottom:8px}
   details.past summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-weight:600;font-size:15px}
   details.past summary::-webkit-details-marker{display:none}
@@ -79,15 +81,36 @@
   .dot{width:8px;height:8px;border-radius:50%;background:var(--accent2)} .dot.warn{background:var(--warn)}
   .banner{background:#2a2110;border:1px solid #5a4415;color:#ffd78a;border-radius:14px;padding:12px 14px;font-size:14px;margin-bottom:14px}
   .banner button{background:var(--warn);color:#1a1205;border-radius:10px;padding:6px 12px;font-weight:600;margin-top:8px}
+  .linkbtn{background:none;color:var(--accent2);font-weight:600;font-size:14px;padding:0}
 
-  /* sheet */
+  /* bottom sheet (menu) */
   .sheet-bg{position:fixed;inset:0;background:#0009;display:flex;align-items:flex-end;justify-content:center;z-index:10}
   .sheet{background:var(--card);width:100%;max-width:560px;border-radius:22px 22px 0 0;padding:18px 16px calc(var(--safe-b) + 18px)}
   .sheet .row{display:block;width:100%;text-align:left;padding:14px;border-radius:12px;background:var(--card2);margin-top:8px;font-weight:600}
-  .sheet .row.danger{color:#ff8a7a}
+  .sheet .row.danger{color:var(--bad)}
+
+  /* full-screen page (metric detail, glossary) */
+  .page{position:fixed;inset:0;background:var(--bg);z-index:15;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .page-in{max-width:560px;margin:0 auto;padding:calc(var(--safe-t) + 12px) 16px calc(var(--safe-b) + 40px)}
+  .back{display:flex;align-items:center;gap:6px;background:none;color:var(--muted);font-weight:600;padding:6px 0;margin-bottom:10px}
+  .back svg{width:18px;height:18px;stroke:currentColor}
+  .big{font-size:44px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+  .big small{font-size:18px;color:var(--muted);font-weight:600;margin-left:4px}
+  .chart{width:100%;height:150px;display:block;margin-top:8px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+  .stat{background:var(--card2);border-radius:12px;padding:10px 8px;text-align:center}
+  .stat .k{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .stat .v{font-weight:700;font-size:16px;margin-top:2px;font-variant-numeric:tabular-nums}
+  .explain h4{margin:16px 0 4px;font-size:14px;color:var(--accent2);font-weight:700}
+  .explain h4:first-child{margin-top:4px}
+  .explain p{margin:0;font-size:15px;line-height:1.6;color:#d6dbe2}
+  .gl-item{background:var(--card);border-radius:14px;margin-bottom:8px}
+  .gl-item summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:600;display:flex;justify-content:space-between}
+  .gl-item summary::-webkit-details-marker{display:none}
+  .gl-item .explain{padding:0 16px 16px}
+
   .toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + 20px);transform:translateX(-50%);background:var(--card2);
-    border:1px solid var(--line);padding:10px 16px;border-radius:12px;font-size:14px;z-index:20}
-  .spin{animation:spin 1s linear infinite} @keyframes spin{to{transform:rotate(360deg)}}
+    border:1px solid var(--line);padding:10px 16px;border-radius:12px;font-size:14px;z-index:30}
 </style>
 </head>
 <body>
@@ -106,10 +129,11 @@
   <div class="note">
     <b style="color:var(--text)">Bilmen gerekenler</b><br>
     • Google "Bu uygulama doğrulanmadı" uyarısı gösterecek: <i>Gelişmiş → FitMyBit'e git</i> diyerek devam et.<br>
+    • İzin ekranında tüm kutuları işaretle; işaretlemediğin veriler yorumlara giremez.<br>
     • Sağlık verilerin yalnızca okunur. Yorumlar Claude tarafından üretilir, tıbbi tavsiye değildir.<br>
-    • Ayarlar'dan istediğin an hesabını ve tüm verilerini silebilirsin.
+    • Ayarlar'dan istediğin an hesabını ve tüm verilerini silebilirsin. <a href="privacy.html">Gizlilik</a>
   </div>
-  <p id="loginErr" class="small" style="color:#ff8a7a"></p>
+  <p id="loginErr" class="small" style="color:var(--bad)"></p>
 </section>
 
 <!-- APP -->
@@ -124,18 +148,23 @@
   <div id="banner"></div>
 
   <div class="card" id="dailyCard"></div>
-  <div class="grid" id="tiles"></div>
-  <div class="card" id="weeklyCard"></div>
+  <div id="metricGroups"></div>
+  <div style="margin:14px 4px 0"><button class="linkbtn" id="glossaryBtn">Tüm ölçütler ne anlama geliyor? →</button></div>
+  <div class="card" id="weeklyCard" style="margin-top:18px"></div>
 
   <h3 style="font-size:15px;margin:22px 4px 10px" class="muted">Geçmiş yorumlar</h3>
   <div class="seg" id="seg"><button data-k="daily" class="on">Günlük</button><button data-k="weekly">Haftalık</button></div>
   <div id="past"></div>
 </section>
 
+<!-- METRIC DETAIL / GLOSSARY PAGE -->
+<div id="page" class="page hidden"><div class="page-in" id="pageIn"></div></div>
+
 <div id="sheet" class="sheet-bg hidden">
   <div class="sheet">
     <div class="small muted" id="who"></div>
     <button class="row" id="syncBtn">Verileri şimdi yenile</button>
+    <button class="row" id="glossaryBtn2">Ölçütler sözlüğü</button>
     <button class="row" id="installBtn">Ana ekrana nasıl eklerim?</button>
     <button class="row" id="logoutBtn">Çıkış yap</button>
     <button class="row danger" id="deleteBtn">Hesabımı ve tüm verilerimi sil</button>
@@ -143,11 +172,13 @@
   </div>
 </div>
 
+<script src="metrics.js"></script>
 <script>
 const API = "https://orzooypcvqtcmmbxoloc.supabase.co/functions/v1";
 const APP_URL = location.origin + location.pathname;
 const TOKEN_KEY = "fmb_token";
 const DEMO = new URLSearchParams(location.search).has("demo");
+const METRICS = window.FMB_METRICS, GROUPS = window.FMB_GROUPS;
 const $ = (id) => document.getElementById(id);
 let state = { data: null, pastKind: "daily" };
 
@@ -164,30 +195,27 @@ function errText(e) {
     || "Giriş sırasında hata: " + e;
 }
 const token = () => localStorage.getItem(TOKEN_KEY);
-$("loginBtn").onclick = () => {
-  location.href = `${API}/gh-oauth-callback?start=1&return=${encodeURIComponent(APP_URL)}`;
-};
+$("loginBtn").onclick = () => { location.href = `${API}/gh-oauth-callback?start=1&return=${encodeURIComponent(APP_URL)}`; };
 
 async function api(action, method = "GET", params = "") {
-  const r = await fetch(`${API}/gh-api?action=${action}${params}`, {
-    method, headers: { Authorization: `Bearer ${token()}` },
-  });
+  const r = await fetch(`${API}/gh-api?action=${action}${params}`, { method, headers: { Authorization: `Bearer ${token()}` } });
   if (r.status === 401) { localStorage.removeItem(TOKEN_KEY); show("login"); throw new Error("unauthorized"); }
   return r.json();
 }
 
 /* ---------- helpers ---------- */
-const fmt = (n, d = 0) => n == null || isNaN(n) ? "–" : Number(n).toLocaleString("tr-TR", { maximumFractionDigits: d, minimumFractionDigits: d });
+const fmt = (n, d = 0, signed = false) => n == null || isNaN(n) ? "–"
+  : (signed && n > 0 ? "+" : "") + Number(n).toLocaleString("tr-TR", { maximumFractionDigits: d, minimumFractionDigits: d });
 const dayLabel = (d) => new Date(d + "T12:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "long", weekday: "long" });
 const shortDay = (d) => new Date(d + "T12:00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
-function esc(s) { return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
+const isoDay = (date) => date.toLocaleDateString("en-CA");
+function esc(s) { return String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]); }
 function md(s) {
-  // tiny markdown: paragraphs, "- " bullets, **bold**
   const inline = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
   const out = []; let list = null;
   for (const raw of String(s || "").split("\n")) {
     const line = raw.trim();
-    if (/^[-•*] /.test(line)) { if (!list) { list = []; } list.push(`<li>${inline(line.slice(2))}</li>`); continue; }
+    if (/^[-•*] /.test(line)) { (list ||= []).push(`<li>${inline(line.slice(2))}</li>`); continue; }
     if (list) { out.push(`<ul>${list.join("")}</ul>`); list = null; }
     if (line.startsWith("#")) out.push(`<p><b>${inline(line.replace(/^#+\s*/, ""))}</b></p>`);
     else if (line) out.push(`<p>${inline(line)}</p>`);
@@ -200,35 +228,54 @@ function toast(msg) {
   document.body.appendChild(t); setTimeout(() => t.remove(), 2600);
 }
 function show(which) { $("login").classList.toggle("hidden", which !== "login"); $("app").classList.toggle("hidden", which !== "app"); }
+const avg = (a) => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
 
-/* ---------- metrics: pick values out of flattened API metrics ---------- */
-// Each metric: data_type + ordered key regexes. Field names are matched loosely because
-// the Google Health API returns nested objects (e.g. "steps.countSum").
-const METRICS = [
-  { id: "steps", label: "Adım", type: "steps", keys: [/countsum/i, /count/i], unit: "", d: 0 },
-  { id: "sleep", label: "Uyku", type: "sleep", keys: [/asleep.*min/i, /minutesasleep/i, /^total_minutes$/], unit: "sa", d: 1, map: (m) => m / 60 },
-  { id: "rhr", label: "Dinlenme nabzı", type: "daily-resting-heart-rate", keys: [/beatsperminute/i, /bpm/i, /.*/], unit: "bpm", d: 0, lowerBetter: true },
-  { id: "hrv", label: "HRV", type: "daily-heart-rate-variability", keys: [/rmssd/i, /average.*mill/i, /millis/i, /.*/], unit: "ms", d: 0 },
-  { id: "azm", label: "Aktif bölge dk.", type: "active-zone-minutes", keys: [/sum/i, /minutes/i, /.*/], unit: "dk", d: 0 },
-  { id: "kcal", label: "Kalori", type: "total-calories", keys: [/kcal/i, /sum/i, /.*/], unit: "kcal", d: 0 },
-];
-function pick(metrics, keys) {
-  const entries = Object.entries(metrics || {});
-  for (const re of keys) { const hit = entries.find(([k]) => re.test(k)); if (hit) return hit[1]; }
+/* ---------- reading metric values ---------- */
+function valueOf(m, metrics) {
+  if (!metrics) return null;
+  if (m.countOnly) return metrics.count ?? 1;
+  const entries = Object.entries(metrics);
+  for (const re of m.keys) {
+    const hit = entries.find(([k]) => re.test(k));
+    if (hit) return m.conv ? m.conv(hit[0], hit[1]) : hit[1];
+  }
   return null;
 }
-function series(daily, m, days = 14) {
+function series(m, days) {
   const byDay = {};
-  for (const r of daily) if (r.data_type === m.type) {
-    let v = pick(r.metrics, m.keys); if (v != null && m.map) v = m.map(v); byDay[r.day] = v;
+  for (const r of state.data.daily) if (r.data_type === m.type) {
+    const v = valueOf(m, r.metrics); if (v != null && isFinite(v)) byDay[r.day] = v;
   }
   const out = []; const today = new Date();
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(today); d.setDate(d.getDate() - i);
-    const k = d.toLocaleDateString("en-CA"); out.push({ day: k, v: byDay[k] ?? null });
+    const d = new Date(today); d.setDate(d.getDate() - i); const k = isoDay(d);
+    out.push({ day: k, v: byDay[k] ?? null });
   }
   return out;
 }
+function summary(m) {
+  const s28 = series(m, 29);
+  const lastIdx = s28.map((p) => p.v != null).lastIndexOf(true);
+  const last = lastIdx >= 0 ? s28[lastIdx] : null;
+  const before = s28.slice(0, lastIdx >= 0 ? lastIdx : s28.length).map((p) => p.v).filter((v) => v != null);
+  const vals = s28.map((p) => p.v).filter((v) => v != null);
+  return {
+    s28, last,
+    avg7: avg(before.slice(-7)), avg28: avg(before),
+    min: vals.length ? Math.min(...vals) : null, max: vals.length ? Math.max(...vals) : null,
+    count: vals.length,
+  };
+}
+function trendClass(m, diff) {
+  if (!diff || m.higher === "neutral") return "";
+  return (diff > 0) === (m.higher === "good") ? "g" : "b";
+}
+function latestNote(id) {
+  for (const i of state.data.insights) if (i.metric_notes && i.metric_notes[id]) return { text: i.metric_notes[id], ins: i };
+  return null;
+}
+
+/* ---------- charts ---------- */
 function spark(pts, color) {
   const vals = pts.map((p) => p.v).filter((v) => v != null);
   if (vals.length < 2) return "";
@@ -238,11 +285,30 @@ function spark(pts, color) {
     `<rect x="${i * step - 2}" y="${h - 4 - ((p.v - min) / span) * (h - 8)}" width="4" height="${4 + ((p.v - min) / span) * (h - 8)}" rx="2" fill="${color}" opacity="${i === pts.length - 1 ? 1 : .45}"/>`).join("");
   return `<svg viewBox="-3 0 106 ${h}" preserveAspectRatio="none">${bars}</svg>`;
 }
+function bigChart(pts, m, color, mean) {
+  const vals = pts.map((p) => p.v).filter((v) => v != null);
+  if (!vals.length) return `<p class="empty" style="margin-top:12px">Son 4 haftada veri yok.</p>`;
+  const lo = Math.min(...vals, mean ?? Infinity), hi = Math.max(...vals, mean ?? -Infinity);
+  const pad = (hi - lo) * 0.15 || Math.abs(hi) * 0.1 || 1;
+  const min = m.signed ? lo - pad : Math.max(0, lo - pad), max = hi + pad, span = max - min;
+  const W = 300, H = 150, top = 8, bottom = 22, ih = H - top - bottom, n = pts.length, bw = W / n;
+  const y = (v) => top + ih - ((v - min) / span) * ih;
+  let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  pts.forEach((p, i) => {
+    if (p.v == null) return;
+    const yy = y(p.v), base = m.signed ? y(0) : top + ih;
+    svg += `<rect x="${i * bw + bw * 0.18}" y="${Math.min(yy, base)}" width="${bw * 0.64}" height="${Math.max(2, Math.abs(base - yy))}" rx="2" fill="${color}" opacity="${i === n - 1 ? 1 : .55}"/>`;
+  });
+  if (mean != null) svg += `<line x1="0" x2="${W}" y1="${y(mean)}" y2="${y(mean)}" stroke="#eef1f5" stroke-opacity=".5" stroke-dasharray="4 4" stroke-width="1"/>`;
+  [0, Math.floor(n / 2), n - 1].forEach((i) => {
+    svg += `<text x="${i * bw + bw / 2}" y="${H - 6}" fill="#8b96a5" font-size="10" text-anchor="${i === 0 ? "start" : i === n - 1 ? "end" : "middle"}">${shortDay(pts[i].day)}</text>`;
+  });
+  return svg + "</svg>";
+}
 
-/* ---------- render ---------- */
+/* ---------- render home ---------- */
 function render() {
-  const { user, daily, insights } = state.data;
-  // status
+  const { user, insights } = state.data;
   const synced = user.last_sync_at ? new Date(user.last_sync_at).toLocaleString("tr-TR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : null;
   $("status").innerHTML = synced
     ? `<span class="dot${user.sync_error ? " warn" : ""}"></span> Son senkron: ${synced}`
@@ -251,39 +317,51 @@ function render() {
   $("banner").innerHTML = user.needs_reauth
     ? `<div class="banner">Google bağlantının süresi dolmuş, verilerin güncellenemiyor.<br><button onclick="document.getElementById('loginBtn').click()">Yeniden bağlan</button></div>` : "";
 
-  // daily insight
-  const daily1 = insights.find((i) => i.kind === "daily");
-  $("dailyCard").innerHTML = daily1
-    ? `<div class="eyebrow">Günün yorumu · ${dayLabel(daily1.period_start)}</div>
-       ${daily1.title ? `<h2>${esc(daily1.title)}</h2>` : ""}
-       <div class="insight">${md(daily1.content)}</div>${chips(daily1.highlights)}`
-    : `<div class="eyebrow">Günün yorumu</div><p class="empty">İlk yorumun yarın sabah burada olacak. Verilerin toplanmaya başladı.</p>`;
+  const d1 = insights.find((i) => i.kind === "daily");
+  $("dailyCard").innerHTML = d1
+    ? `<div class="eyebrow">Dünün özeti · ${dayLabel(d1.period_start)}</div>
+       ${d1.title ? `<h2>${esc(d1.title)}</h2>` : ""}
+       <div class="insight">${md(d1.content)}</div>${chips(d1.highlights)}
+       <p class="small muted" style="margin:12px 0 0">Bir ölçütün üstüne dokunarak detayını, yorumunu ve ne anlama geldiğini görebilirsin.</p>`
+    : `<div class="eyebrow">Dünün özeti</div><p class="empty">İlk yorumun yarın sabah 09:00 civarı burada olacak. Verilerin toplanmaya başladı.</p>`;
 
-  // tiles
-  $("tiles").innerHTML = METRICS.map((m) => {
-    const s = series(daily, m);
-    const last = [...s].reverse().find((p) => p.v != null);
-    const prev = s.slice(0, -1).map((p) => p.v).filter((v) => v != null);
-    const avg = prev.length ? prev.reduce((a, b) => a + b, 0) / prev.length : null;
-    let delta = "";
-    if (last && avg != null) {
-      const diff = last.v - avg; const pct = avg ? Math.round((diff / avg) * 100) : 0;
-      delta = `${pct > 0 ? "+" : ""}${pct}% · 14g ort. ${fmt(avg, m.d)}`;
-    }
-    return `<div class="tile"><div class="lbl">${m.label}</div>
-      <div class="val">${last ? fmt(last.v, m.d) : "–"}<small>${last ? m.unit : ""}</small></div>
-      <div class="delta">${last ? (last.day === s[s.length - 1].day ? "Bugün" : shortDay(last.day)) + (delta ? " · " + delta : "") : "Veri yok"}</div>
-      ${spark(s, m.id === "sleep" || m.id === "hrv" ? "var(--accent2)" : "var(--accent)")}</div>`;
+  $("metricGroups").innerHTML = GROUPS.map((g) => {
+    const tiles = METRICS.filter((m) => m.group === g.id).map((m) => ({ m, s: summary(m) }))
+      .filter(({ m, s }) => m.core || s.count > 0);
+    if (!tiles.length) return "";
+    return `<div class="grouph"><h3>${g.label}</h3></div><div class="grid">${tiles.map(({ m, s }) => tile(m, s)).join("")}</div>`;
   }).join("");
+  document.querySelectorAll("[data-metric]").forEach((b) => b.onclick = () => openMetric(b.dataset.metric));
 
-  // weekly
   const w = insights.find((i) => i.kind === "weekly");
   $("weeklyCard").innerHTML = w
     ? `<div class="eyebrow teal">Haftanın özeti · ${shortDay(w.period_start)} – ${shortDay(w.period_end)}</div>
        ${w.title ? `<h2>${esc(w.title)}</h2>` : ""}<div class="insight">${md(w.content)}</div>${chips(w.highlights)}`
-    : `<div class="eyebrow teal">Haftanın özeti</div><p class="empty">Haftalık özet her pazartesi sabahı gelir.</p>`;
-
+    : `<div class="eyebrow teal">Haftanın özeti</div><p class="empty">Haftalık özet her pazar sabahı gelir.</p>`;
   renderPast();
+}
+function tile(m, s) {
+  const color = m.group === "sleep" || m.group === "heart" ? "var(--accent2)" : "var(--accent)";
+  let delta = "Veri yok";
+  if (s.last) {
+    const when = s.last.day === isoDay(new Date()) ? "Bugün" : s.last.day === isoDay(new Date(Date.now() - 864e5)) ? "Dün" : shortDay(s.last.day);
+    delta = when;
+    if (s.avg7 != null && !m.countOnly) {
+      const diff = s.last.v - s.avg7;
+      if (m.signed) {
+        delta += ` · <span>${fmt(diff, m.d, true)} ${m.unit}</span> 7g ort.`;
+      } else {
+        const pct = s.avg7 ? Math.round((diff / Math.abs(s.avg7)) * 100) : 0;
+        delta += ` · <span class="${trendClass(m, diff)}">${pct > 0 ? "+" : ""}${pct}%</span> 7g ort.`;
+      }
+    }
+  }
+  const hasNote = !!latestNote(m.id);
+  return `<button class="tile" data-metric="${m.id}">
+    <span class="chev">›</span>${hasNote ? '<span class="dot2" title="Yorum var"></span>' : ""}
+    <div class="lbl">${m.label}</div>
+    <div class="val">${s.last ? fmt(s.last.v, m.d, m.signed) : "–"}<small>${s.last ? m.unit : ""}</small></div>
+    <div class="delta">${delta}</div>${spark(s.s28.slice(-14), color)}</button>`;
 }
 function chips(h) {
   if (!Array.isArray(h) || !h.length) return "";
@@ -306,6 +384,65 @@ $("seg").onclick = (e) => {
   [...$("seg").children].forEach((x) => x.classList.toggle("on", x === b));
   renderPast();
 };
+
+/* ---------- metric detail page ---------- */
+const BACK = `<button class="back" onclick="closePage()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Geri</button>`;
+function explainHTML(info) {
+  const sec = [["Bu ne ölçer?", info.what], ["Nasıl ölçülür?", info.how], ["Normal aralık", info.range],
+    ["Yükselirse ne anlama gelir?", info.up], ["Düşerse ne anlama gelir?", info.down], ["Neler etkiler?", info.affects], ["İpucu", info.tip]];
+  return `<div class="explain">${sec.filter(([, t]) => t && t !== "—").map(([h, t]) => `<h4>${h}</h4><p>${esc(t)}</p>`).join("")}</div>`;
+}
+function openMetric(id) {
+  const m = METRICS.find((x) => x.id === id); if (!m) return;
+  const s = summary(m);
+  const color = m.group === "sleep" || m.group === "heart" ? "#4fd1b5" : "#ff6a3d";
+  const note = latestNote(id);
+  const when = s.last ? (s.last.day === isoDay(new Date()) ? "bugün" : dayLabel(s.last.day)) : null;
+  let cmp = "";
+  if (s.last && s.avg28 != null && !m.countOnly) {
+    const diff = s.last.v - s.avg28;
+    cmp = `<p class="small" style="margin:6px 0 0">4 haftalık ortalamandan <span style="color:${trendClass(m, diff) === "g" ? "var(--accent2)" : trendClass(m, diff) === "b" ? "var(--bad)" : "var(--text)"}">${fmt(Math.abs(diff), m.d)} ${m.unit} ${diff >= 0 ? "yüksek" : "düşük"}</span>.</p>`;
+  }
+  $("pageIn").innerHTML = `${BACK}
+    <div class="eyebrow">${GROUPS.find((g) => g.id === m.group).label}</div>
+    <h2 style="font-size:24px">${m.label}</h2>
+    <div class="card" style="margin-top:14px">
+      ${s.last ? `<div class="big">${fmt(s.last.v, m.d, m.signed)}<small>${m.unit}</small></div>
+        <div class="small muted">Son değer · ${when}</div>${cmp}` : `<p class="empty">Bu ölçüt için henüz veri yok. Cihazın ölçmüyorsa ya da ilgili izni vermediysen burada boş kalır.</p>`}
+      ${bigChart(s.s28, m, color, s.avg28)}
+      ${s.count ? `<div class="small muted" style="margin-top:2px">Son 4 hafta · kesikli çizgi = ortalaman</div>
+      <div class="stats">
+        <div class="stat"><div class="k">7g ort.</div><div class="v">${fmt(s.avg7, m.d, m.signed)}</div></div>
+        <div class="stat"><div class="k">28g ort.</div><div class="v">${fmt(s.avg28, m.d, m.signed)}</div></div>
+        <div class="stat"><div class="k">En düşük</div><div class="v">${fmt(s.min, m.d, m.signed)}</div></div>
+        <div class="stat"><div class="k">En yüksek</div><div class="v">${fmt(s.max, m.d, m.signed)}</div></div>
+      </div>` : ""}
+    </div>
+    <div class="card">
+      <div class="eyebrow">Claude'un yorumu</div>
+      ${note ? `<div class="insight">${md(note.text)}</div><p class="small muted" style="margin:10px 0 0">${note.ins.kind === "daily" ? dayLabel(note.ins.period_start) : "Haftalık özet"} yorumundan</p>`
+        : `<p class="empty">Bu ölçüt için henüz yorum yok. Veri geldikçe her sabahki özetle birlikte burada kısa bir yorum olacak.</p>`}
+    </div>
+    <div class="card">
+      <div class="eyebrow teal">Bu ölçüt ne anlama geliyor?</div>
+      ${explainHTML(m.info)}
+    </div>
+    <p class="small muted" style="padding:0 4px">Bu açıklamalar genel bilgi amaçlıdır, tıbbi tavsiye değildir. Kaygı verici bir değişiklik fark edersen bir sağlık profesyoneline danış.</p>`;
+  openPage();
+}
+function openGlossary() {
+  $("sheet").classList.add("hidden");
+  $("pageIn").innerHTML = `${BACK}<h2 style="font-size:24px">Ölçütler sözlüğü</h2>
+    <p class="muted" style="margin:6px 0 16px">Google Health'teki her ölçütün ne olduğu, nasıl ölçüldüğü ve değişince ne anlama geldiği.</p>
+    ${GROUPS.map((g) => `<div class="grouph"><h3>${g.label}</h3></div>` + METRICS.filter((m) => m.group === g.id).map((m) =>
+      `<details class="gl-item"><summary><span>${m.label}</span><span class="muted">${esc(m.unit)}</span></summary>${explainHTML(m.info)}</details>`).join("")).join("")}`;
+  openPage();
+}
+function openPage() { $("page").classList.remove("hidden"); $("page").scrollTop = 0; document.body.classList.add("locked"); history.pushState({ page: 1 }, ""); }
+function closePage() { if (history.state && history.state.page) history.back(); else hidePage(); }
+function hidePage() { $("page").classList.add("hidden"); document.body.classList.remove("locked"); }
+window.addEventListener("popstate", hidePage);
+$("glossaryBtn").onclick = openGlossary; $("glossaryBtn2").onclick = openGlossary;
 
 /* ---------- menu ---------- */
 $("menuBtn").onclick = () => $("sheet").classList.remove("hidden");
@@ -341,27 +478,42 @@ async function load() {
   catch (e) { if (e.message !== "unauthorized") { show("app"); $("status").textContent = "Bağlantı hatası, tekrar dene."; } }
 }
 function demoData() {
-  const daily = []; const t = new Date();
-  for (let i = 20; i >= 0; i--) {
-    const d = new Date(t); d.setDate(d.getDate() - i); const k = d.toLocaleDateString("en-CA");
-    daily.push({ day: k, data_type: "steps", metrics: { "steps.countSum": 6000 + Math.round(Math.random() * 6000) } });
-    daily.push({ day: k, data_type: "sleep", metrics: { total_minutes: 360 + Math.round(Math.random() * 120) } });
-    daily.push({ day: k, data_type: "daily-resting-heart-rate", metrics: { beatsPerMinute: 58 + Math.round(Math.random() * 6) } });
-    daily.push({ day: k, data_type: "daily-heart-rate-variability", metrics: { averageHeartRateVariabilityMilliseconds: 35 + Math.round(Math.random() * 20) } });
-    daily.push({ day: k, data_type: "active-zone-minutes", metrics: { "activeZoneMinutes.sum": Math.round(Math.random() * 60) } });
-    daily.push({ day: k, data_type: "total-calories", metrics: { "totalCalories.kcalSum": 2100 + Math.round(Math.random() * 600) } });
+  const daily = []; const t = new Date(); const r = (a, b) => a + Math.round(Math.random() * (b - a));
+  for (let i = 28; i >= 0; i--) {
+    const d = new Date(t); d.setDate(d.getDate() - i); const k = isoDay(d);
+    const push = (data_type, metrics) => daily.push({ day: k, data_type, metrics });
+    if (i > 0) {
+      push("steps", { "steps.countSum": r(5000, 12500) });
+      push("distance", { "distance.millimetersSum": r(3500000, 9000000) });
+      push("floors", { "floors.countSum": r(2, 18) });
+      push("active-zone-minutes", { "activeZoneMinutes.sumInCardioHeartZone": r(0, 50) });
+      push("total-calories", { "totalCalories.kcalSum": r(2000, 2800) });
+      push("sedentary-period", { "sedentaryPeriod.durationSum_s": r(25000, 40000) });
+    }
+    push("sleep", { total_minutes: r(330, 480), "main.summary.minutesDeep": r(40, 100), "main.summary.minutesRem": r(60, 120) });
+    push("daily-resting-heart-rate", { "dailyRestingHeartRate.beatsPerMinute": r(56, 64) });
+    push("daily-heart-rate-variability", { "dailyHeartRateVariability.averageHeartRateVariabilityMilliseconds": r(32, 58) });
+    push("daily-respiratory-rate", { "dailyRespiratoryRate.breathsPerMinute": 14 + Math.random() * 2 });
+    push("daily-oxygen-saturation", { "dailyOxygenSaturation.averagePercentage": 95 + Math.random() * 3 });
+    push("daily-sleep-temperature-derivations", { "relativeNightlyTemperature": (Math.random() - 0.5) * 1.2 });
   }
-  const y = new Date(t); y.setDate(y.getDate() - 1);
+  const y = isoDay(new Date(Date.now() - 864e5));
   return {
     user: { email: "demo@example.com", display_name: "Demo", last_sync_at: new Date().toISOString() },
     daily,
     insights: [
-      { kind: "daily", period_start: y.toLocaleDateString("en-CA"), period_end: y.toLocaleDateString("en-CA"), title: "Toparlanma günü gibi duruyor",
-        content: "Dün **9.412 adım** attın, 14 günlük ortalamanın biraz üstünde. Uykun ise 6 saat 10 dakikada kaldı.\n- Dinlenme nabzın 61 bpm ile normal aralığında.\n- HRV ortalamanın altında; bugün yoğun antrenman yerine hafif tempo daha iyi olabilir.",
-        highlights: [{ text: "Adım +8%", trend: "up" }, { text: "Uyku −12%", trend: "down" }, { text: "Nabız stabil" }] },
+      { kind: "daily", period_start: y, period_end: y, title: "Hareketli gün, kısa gece",
+        content: "Dün **9.412 adım** attın, 7 günlük ortalamanın %8 üstünde. Bu gece ise 6 saat 10 dakika uyudun; ortalamandan 40 dakika az.\n- Dinlenme nabzın 61 bpm, normal aralığında.\n- HRV ortalamanın biraz altında; bugün yoğun antrenman yerine hafif tempo daha iyi olabilir.",
+        highlights: [{ text: "Adım +8%", trend: "up" }, { text: "Uyku −40 dk", trend: "down" }, { text: "Nabız stabil" }],
+        metric_notes: {
+          steps: "Dün 9.412 adım attın; 7 günlük ortalaman 8.700. Öğleden sonraki yürüyüşün farkı yaratmış görünüyor.",
+          sleep: "6 saat 10 dakika uyudun, 28 günlük ortalaman 6 saat 50 dakika. Yatışın her zamankinden yaklaşık 45 dakika geç olmuş.",
+          hrv: "HRV 38 ms ile kendi ortalamanın (45 ms) altında. Kısa uykuyla uyumlu; tek gecelik düşüş endişe verici değil.",
+          rhr: "61 bpm, 4 haftalık ortalaman 60. Değişim anlamlı değil, toparlanman yolunda.",
+        } },
       { kind: "weekly", period_start: "2026-11-09", period_end: "2026-11-15", title: "Hareketli ama uykusuz bir hafta",
         content: "Bu hafta ortalama günde 8.700 adım attın. Hafta içi uyku süren 6,5 saatin altında kaldı, hafta sonu telafi ettin.\n- Önümüzdeki hafta hedef: hafta içi yatış saatini 30 dk öne çekmek.",
-        highlights: [{ text: "Ort. 8.700 adım" }, { text: "Uyku 6,4 sa", trend: "down" }] },
+        highlights: [{ text: "Ort. 8.700 adım" }, { text: "Uyku 6,4 sa", trend: "down" }], metric_notes: {} },
     ],
   };
 }
