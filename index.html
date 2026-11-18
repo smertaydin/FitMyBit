@@ -114,6 +114,14 @@
   .gl-item summary::-webkit-details-marker{display:none}
   .gl-item .explain{padding:0 16px 16px}
 
+  .pfrow{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+  .pfrow:last-child{border-bottom:0}
+  .pfrow .k{font-weight:600} .pfrow .s{font-size:12px;color:var(--muted)}
+  .segsm{display:flex;background:var(--card2);border-radius:10px;padding:3px}
+  .segsm button{padding:7px 14px;border-radius:8px;background:none;color:var(--muted);font-weight:600;font-size:14px}
+  .segsm button.on{background:var(--accent);color:#1a0d07}
+  .numin{width:88px;background:var(--card2);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 10px;font:inherit;text-align:right}
+  .btn{display:block;width:100%;background:var(--accent);color:#1a0d07;font-weight:700;padding:13px;border-radius:12px;margin-top:14px}
   .toast{position:fixed;left:50%;bottom:calc(var(--safe-b) + 20px);transform:translateX(-50%);background:var(--card2);
     border:1px solid var(--line);padding:10px 16px;border-radius:12px;font-size:14px;z-index:30}
 </style>
@@ -170,6 +178,7 @@
   <div class="sheet">
     <div class="small muted" id="who"></div>
     <button class="row" id="syncBtn">Verileri şimdi yenile</button>
+    <button class="row" id="profileBtn">Profil bilgilerim</button>
     <button class="row" id="glossaryBtn2">Ölçütler sözlüğü</button>
     <button class="row" id="installBtn">Ana ekrana nasıl eklerim?</button>
     <button class="row" id="logoutBtn">Çıkış yap</button>
@@ -384,8 +393,11 @@ function render() {
     ? `<span class="dot${user.sync_error ? " warn" : ""}"></span> Son senkron: ${synced}`
     : `<span class="dot warn"></span> İlk senkron sürüyor, birkaç dakika içinde veriler gelecek.`;
   $("who").textContent = user.email ? `${user.display_name || ""} · ${user.email}` : "";
-  $("banner").innerHTML = user.needs_reauth
-    ? `<div class="banner">Google bağlantının süresi dolmuş, verilerin güncellenemiyor.<br><button onclick="document.getElementById('loginBtn').click()">Yeniden bağlan</button></div>` : "";
+  const needProfile = !user.sex || !user.height_cm;
+  $("banner").innerHTML = (needProfile ? `<div class="card" style="border:1px solid var(--line)"><div class="eyebrow teal">Yorumları kişiselleştir</div>
+      <p style="margin:4px 0 10px;font-size:15px">Yaşın Google'dan geliyor${user.age ? ` (${user.age})` : ""}. ${!user.sex ? "Cinsiyet" : ""}${!user.sex && !user.height_cm ? " ve " : ""}${!user.height_cm ? "boy" : ""} bilgini de eklersen nabız, HRV, VO₂ max ve kilo yorumları sana göre ayarlanır.</p>
+      <button class="linkbtn" onclick="openProfile()">Profilimi tamamla →</button></div>` : "") + (user.needs_reauth
+    ? `<div class="banner">Google bağlantının süresi dolmuş, verilerin güncellenemiyor.<br><button onclick="document.getElementById('loginBtn').click()">Yeniden bağlan</button></div>` : "");
 
   const d1 = insights.find((i) => i.kind === "daily");
   $("dailyCard").innerHTML = d1
@@ -513,6 +525,33 @@ function openPage() { $("page").classList.remove("hidden"); $("page").scrollTop 
 function closePage() { if (history.state && history.state.page) history.back(); else hidePage(); }
 function hidePage() { $("page").classList.add("hidden"); document.body.classList.remove("locked"); }
 window.addEventListener("popstate", hidePage);
+function openProfile() {
+  $("sheet").classList.add("hidden");
+  const u = state.data.user; let sex = u.sex || null;
+  $("pageIn").innerHTML = `${BACK}<h2 style="font-size:24px">Profil bilgilerim</h2>
+    <p class="muted" style="margin:6px 0 14px">Yorumlar bu bilgilere göre ayarlanır: örneğin dinlenme nabzı, HRV ve VO₂ max yaşa ve cinsiyete göre farklı aralıklarda değerlendirilir, kilo boyla birlikte (vücut kitle indeksi) yorumlanır.</p>
+    <div class="card">
+      <div class="pfrow"><div><div class="k">Yaş</div><div class="s">Google Health profilinden</div></div><div style="font-weight:700">${u.age ?? "–"}</div></div>
+      <div class="pfrow"><div><div class="k">Cinsiyet</div><div class="s">Google bu bilgiyi paylaşmıyor, senden alıyoruz</div></div>
+        <div class="segsm" id="sexSeg"><button data-v="female" class="${sex === "female" ? "on" : ""}">Kadın</button><button data-v="male" class="${sex === "male" ? "on" : ""}">Erkek</button></div></div>
+      <div class="pfrow"><div><div class="k">Boy (cm)</div><div class="s">${u.height_source === "google" ? "Google Health'ten" : u.height_source === "user" ? "Senin girdiğin" : "Google'da kayıtlı değil"}</div></div>
+        <input class="numin" id="heightIn" type="number" inputmode="numeric" min="100" max="250" value="${u.height_cm ?? ""}" placeholder="175"></div>
+      <button class="btn" id="saveProfile">Kaydet</button>
+    </div>
+    <p class="small muted" style="padding:0 4px">Bu bilgiler yalnızca senin yorumlarında kullanılır. Ayarlar'dan hesabını sildiğinde bunlar da silinir.</p>`;
+  $("sexSeg").onclick = (e) => { const b = e.target.closest("button"); if (!b) return; sex = b.dataset.v; [...$("sexSeg").children].forEach((x) => x.classList.toggle("on", x === b)); };
+  $("saveProfile").onclick = async () => {
+    const h = Number($("heightIn").value);
+    const body = {}; if (sex) body.sex = sex;
+    if ($("heightIn").value && h !== Number(u.height_cm)) { if (h < 100 || h > 250) { toast("Boyu cm olarak gir (100–250)."); return; } body.height_cm = h; }
+    if (!Object.keys(body).length) { closePage(); return; }
+    if (DEMO) { Object.assign(u, body); toast("Kaydedildi."); closePage(); render(); return; }
+    const r = await fetch(`${API}/gh-api?action=profile`, { method: "POST", headers: { Authorization: `Bearer ${token()}`, "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (r.ok) { toast("Kaydedildi. Yarınki yorumdan itibaren dikkate alınacak."); closePage(); await load(); } else toast("Kaydedilemedi, tekrar dene.");
+  };
+  openPage();
+}
+$("profileBtn").onclick = openProfile;
 $("glossaryBtn").onclick = openGlossary; $("glossaryBtn2").onclick = openGlossary;
 
 /* ---------- menu ---------- */
@@ -573,7 +612,7 @@ function demoData() {
   }
   const y = isoDay(new Date(Date.now() - 864e5));
   return {
-    user: { email: "demo@example.com", display_name: "Demo", last_sync_at: new Date().toISOString() },
+    user: { email: "demo@example.com", display_name: "Demo", last_sync_at: new Date().toISOString(), age: 34, height_cm: null, sex: null },
     daily,
     insights: [
       { kind: "daily", period_start: y, period_end: y, title: "Hareketli gün, kısa gece",
